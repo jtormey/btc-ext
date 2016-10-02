@@ -2,10 +2,16 @@
   "name": "satoshi-xt",
   "version": "0.0.0",
   "description": "Chrome extension for convenient xpub access",
-  "main": "src/Main.elm",
+  "main": "src/index.js",
   "scripts": {
+    "start": "http-server",
+    "build": "node_modules/.bin/webpack -w",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Justin Tormey <jrtormey@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "elm-webpack-loader": "3.0.*",
+    "webpack": "1.13.*"
+  }
 }

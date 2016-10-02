@@ -2,6 +2,7 @@
     "name": "satoshi-xt",
     "version": "0.0.0",
     "author": "Justin Tormey <jrtormey@gmail.com>",
+    "repository": "https://github.com/jtormey/satoshi-xt.git",
     "license": "MIT",
     "summary": "Chrome extension for convenient xpub access",
     "source-directories": [

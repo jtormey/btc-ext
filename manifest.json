@@ -8,6 +8,6 @@
   "icons": {},
   "browser_action": {
     "default_title": "SatoshiXT",
-    "default_popup": "build/main.html"
+    "default_popup": "index.html"
   }
 }
