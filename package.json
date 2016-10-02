@@ -1,0 +1,11 @@
+{
+  "name": "satoshi-xt",
+  "version": "0.0.0",
+  "description": "Chrome extension for convenient xpub access",
+  "main": "src/Main.elm",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Justin Tormey <jrtormey@gmail.com>",
+  "license": "MIT"
+}

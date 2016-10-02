@@ -1,0 +1,13 @@
+{
+  "manifest_version": 2,
+  "name": "SatoshiXT",
+  "version": "0.0.0",
+  "version_name": "dev-alpha",
+  "description": "Chrome extension for convenient xpub access",
+  "author": "Justin Tormey <jrtormey@gmail.com>",
+  "icons": {},
+  "browser_action": {
+    "default_title": "SatoshiXT",
+    "default_popup": "build/main.html"
+  }
+}
