@@ -9,6 +9,10 @@ let config = {
     modulesDirectories: ['node_modules'],
     extensions: ['', '.js', '.elm']
   },
+  loaders: [{
+    test: /\.scss$/,
+    loader: ['style', 'css', 'sass']
+  }],
   module: {
     loaders: [{
       test: /\.elm$/,
