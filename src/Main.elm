@@ -71,14 +71,17 @@ update msg model =
 view : Model -> Html Msg
 view model =
   let
-    showBal = toString << fromSatoshi
     bal =
       div [ class "bal-container" ]
-        [ span [] [ text (if model.balance == 0 then "Error" else showBal model.balance) ]
+        [ span [] [ text (
+          if model.balance == 0
+            then "No Balance"
+            else showBalance model.balance
+          ) ]
         ]
     qr =
       div [ class "qr-container" ]
-        [ img [ src ("https://blockchain.info/qr?data=" ++ model.address), width 150 ] []
+        [ img [ src (makeQr model.address), width 150, height 150 ] []
         ]
     addr =
       div [ class "addr-container" ]
@@ -94,7 +97,7 @@ view model =
 getBalance : String -> Cmd Msg
 getBalance xpub =
   let
-    url = "https://blockchain.info/balance?cors=true&active=" ++ xpub
+    url = multiAddr xpub
     decodeUrl = Json.at [ xpub, "final_balance" ] Json.float
   in
     Task.perform Failed Balance (Http.get decodeUrl url)
