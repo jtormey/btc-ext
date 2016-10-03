@@ -8,6 +8,7 @@ import Json.Decode as Json exposing ((:=))
 import Task exposing (..)
 import String exposing (toFloat)
 import Helpers exposing (..)
+import Bitcoin exposing (..)
 
 main =
   App.program
@@ -18,34 +19,54 @@ main =
     }
 
 subscriptions : Model -> Sub Msg
-subscriptions model = Sub.none
+subscriptions model =
+  derivation Derivation
 
 type alias Model =
-  { address: String
+  { xpub: String
+  , address: String
+  , nextIndex: Int
   , balance: Float
   }
 
-model: Model
+model : Model
 model =
-  { address = "1LeKvPwg5jpN9ragZ51b4jM6K8nWERCZXt"
+  { xpub = "xpub6DX2ZjB6qgNGPuGobYQbpwXHrn7zue1xWSpg29cw6HxovCE9F4iHqEzjnhXk1PbKrfVGwMMrgQv7Q1wWDDBYzx85C8dsvD6jqc49U2PYstx"
+  , address = ""
+  , nextIndex = 0
   , balance = 0
   }
 
+derivationRequest : Model -> DerivationRequest
+derivationRequest model =
+  { xpub = model.xpub, index = model.nextIndex }
+
 init : (Model, Cmd Msg)
 init =
-  (model, getBalance model.address)
+  (model
+  , Cmd.batch [ getBalance model.xpub, derive (derivationRequest model) ]
+  )
 
-type Msg = Address String | Balance Float | Failed Http.Error
+type Msg
+  = Xpub String
+  | Balance Float
+  | Failed Http.Error
+  | Derive
+  | Derivation String
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Address address ->
-      ({ model | address = address }, Cmd.none)
+    Xpub xpub ->
+      ({ model | xpub = xpub }, Cmd.none)
     Balance balance ->
       ({ model | balance = balance }, Cmd.none)
     Failed err ->
       (model, Cmd.none)
+    Derive ->
+      (model , derive (derivationRequest model))
+    Derivation address ->
+      ({ model | address = address, nextIndex = model.nextIndex + 1 }, Cmd.none)
 
 view : Model -> Html Msg
 view model =
@@ -63,13 +84,17 @@ view model =
       div [ class "addr-container" ]
         [ span [] [ text model.address ]
         ]
+    derive =
+      div []
+        [ button [ onClick Derive ] [ text "Derive" ]
+        ]
   in
-    div [ class "container" ] [ bal, qr, addr ]
+    div [ class "container" ] [ bal, qr, addr, derive ]
 
 getBalance : String -> Cmd Msg
-getBalance address =
+getBalance xpub =
   let
-    url = "https://blockchain.info/balance?cors=true&active=" ++ address
-    decodeUrl = Json.at [ address, "final_balance" ] Json.float
+    url = "https://blockchain.info/balance?cors=true&active=" ++ xpub
+    decodeUrl = Json.at [ xpub, "final_balance" ] Json.float
   in
     Task.perform Failed Balance (Http.get decodeUrl url)

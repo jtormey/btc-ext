@@ -15,6 +15,9 @@ let config = {
   }],
   module: {
     loaders: [{
+      test: /\.json$/,
+      loader: 'json'
+    }, {
       test: /\.elm$/,
       exclude: [/elm-stuff/, /node_modules/],
       loader: 'elm-webpack'
