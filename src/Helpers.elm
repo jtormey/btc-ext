@@ -14,4 +14,4 @@ makeQr : String -> String
 makeQr = (++) "https://blockchain.info/qr?data="
 
 multiAddr : String -> String
-multiAddr = (++) "https://blockchain.info/balance?cors=true&active="
+multiAddr = (++) "https://blockchain.info/multiaddr?cors=true&active="

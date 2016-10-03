@@ -4,7 +4,7 @@ import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, onClick)
 import Http
-import Json.Decode as Json exposing ((:=))
+import Json.Decode as Json exposing (object2, float, int, (:=))
 import Task exposing (..)
 import String exposing (toFloat)
 import Helpers exposing (..)
@@ -29,6 +29,17 @@ type alias Model =
   , balance: Float
   }
 
+type alias XpubInfo =
+  { final_balance: Float
+  , account_index: Int
+  }
+
+xpubDecoder : Json.Decoder XpubInfo
+xpubDecoder =
+  object2 XpubInfo
+    ("final_balance" := float)
+    ("account_index" := int)
+
 model : Model
 model =
   { xpub = "xpub6DX2ZjB6qgNGPuGobYQbpwXHrn7zue1xWSpg29cw6HxovCE9F4iHqEzjnhXk1PbKrfVGwMMrgQv7Q1wWDDBYzx85C8dsvD6jqc49U2PYstx"
@@ -42,10 +53,7 @@ derivationRequest model =
   { xpub = model.xpub, index = model.nextIndex }
 
 init : (Model, Cmd Msg)
-init =
-  (model
-  , Cmd.batch [ getBalance model.xpub, derive (derivationRequest model) ]
-  )
+init = (model, getBalance model.xpub)
 
 type Msg
   = Xpub String
@@ -53,6 +61,7 @@ type Msg
   | Failed Http.Error
   | Derive
   | Derivation String
+  | Info XpubInfo
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -67,6 +76,15 @@ update msg model =
       (model , derive (derivationRequest model))
     Derivation address ->
       ({ model | address = address, nextIndex = model.nextIndex + 1 }, Cmd.none)
+    Info info ->
+      let
+        newModel =
+          { model
+          | balance = info.final_balance
+          , nextIndex = info.account_index
+          }
+      in
+        (newModel, derive (derivationRequest newModel))
 
 view : Model -> Html Msg
 view model =
@@ -89,7 +107,7 @@ view model =
         ]
     derive =
       div []
-        [ button [ onClick Derive ] [ text "Derive" ]
+        [ button [ onClick Derive ] [ text ("Derive Next: " ++ (toString model.nextIndex)) ]
         ]
   in
     div [ class "container" ] [ bal, qr, addr, derive ]
@@ -98,6 +116,6 @@ getBalance : String -> Cmd Msg
 getBalance xpub =
   let
     url = multiAddr xpub
-    decodeUrl = Json.at [ xpub, "final_balance" ] Json.float
+    decodeUrl = Json.at [ "addresses", "0" ] xpubDecoder
   in
-    Task.perform Failed Balance (Http.get decodeUrl url)
+    Task.perform Failed Info (Http.get decodeUrl url)
