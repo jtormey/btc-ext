@@ -1,0 +1,22 @@
+
+body {
+  padding: 2em;
+  margin: 0px;
+}
+
+.container {
+  width: 15em;
+  text-align: center;
+  font-family: Helvetica;
+  font-size: 1.5em;
+}
+
+.qr-container {
+  padding: 2em;
+}
+
+.addr-container {
+  span {
+    word-wrap: break-word;
+  }
+}
