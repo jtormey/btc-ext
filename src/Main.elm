@@ -19,42 +19,7 @@ main =
     , subscriptions = subscriptions
     }
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-  derivation Derivation
-
-type alias Model =
-  { xpub: String
-  , address: String
-  , nextIndex: Int
-  , balance: Float
-  }
-
-type alias XpubInfo =
-  { final_balance: Float
-  , account_index: Int
-  }
-
-xpubDecoder : Json.Decoder XpubInfo
-xpubDecoder =
-  object2 XpubInfo
-    ("final_balance" := float)
-    ("account_index" := int)
-
-model : Model
-model =
-  { xpub = "xpub6DX2ZjB6qgNGPuGobYQbpwXHrn7zue1xWSpg29cw6HxovCE9F4iHqEzjnhXk1PbKrfVGwMMrgQv7Q1wWDDBYzx85C8dsvD6jqc49U2PYstx"
-  , address = ""
-  , nextIndex = 0
-  , balance = 0
-  }
-
-derivationRequest : Model -> DerivationRequest
-derivationRequest model =
-  { xpub = model.xpub, index = model.nextIndex }
-
-init : (Model, Cmd Msg)
-init = (model, getBalance model.xpub)
+-- types
 
 type Msg
   = Xpub String
@@ -63,6 +28,45 @@ type Msg
   | Derive
   | Derivation String
   | Info XpubInfo
+
+type Status
+  = Loading
+  | Loaded
+
+type alias Model =
+  { xpub: String
+  , address: String
+  , nextIndex: Int
+  , balance: Float
+  , status: Status
+  }
+
+type alias XpubInfo =
+  { final_balance: Float
+  , account_index: Int
+  }
+
+-- initialization
+
+model : Model
+model =
+  { xpub = "xpub6DX2ZjB6qgNGPuGobYQbpwXHrn7zue1xWSpg29cw6HxovCE9F4iHqEzjnhXk1PbKrfVGwMMrgQv7Q1wWDDBYzx85C8dsvD6jqc49U2PYstx"
+  , address = ""
+  , nextIndex = 0
+  , balance = 0
+  , status = Loading
+  }
+
+init : (Model, Cmd Msg)
+init = (model, getInfo model.xpub)
+
+-- subscriptions
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+  derivation Derivation
+
+-- update
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -83,12 +87,19 @@ update msg model =
           { model
           | balance = info.final_balance
           , nextIndex = info.account_index
+          , status = Loaded
           }
       in
         (newModel, derive (derivationRequest newModel))
 
-view : Model -> Html Msg
-view model =
+-- views
+
+loadingView : Html Msg
+loadingView =
+  div [ class "container" ] [ text "Loading..." ]
+
+homeView : Model -> Html Msg
+homeView model =
   let
     bal = div [ class "bal-container" ] [ balance model.balance ]
     qr = div [ class "qr-container" ] [ qrCode 150 model.address ]
@@ -97,10 +108,30 @@ view model =
   in
     div [ class "container" ] [ bal, qr, addr, derive ]
 
-getBalance : String -> Cmd Msg
-getBalance xpub =
+view : Model -> Html Msg
+view model =
+  case model.status of
+    Loading ->
+      loadingView
+    Loaded ->
+      homeView model
+
+-- helper functions, should find a way to move
+
+getInfo : String -> Cmd Msg
+getInfo xpub =
   let
     url = multiAddr xpub
     decodeUrl = Json.at [ "addresses", "0" ] xpubDecoder
   in
     Task.perform Failed Info (Http.get decodeUrl url)
+
+xpubDecoder : Json.Decoder XpubInfo
+xpubDecoder =
+  object2 XpubInfo
+    ("final_balance" := float)
+    ("account_index" := int)
+
+derivationRequest : Model -> DerivationRequest
+derivationRequest model =
+  { xpub = model.xpub, index = model.nextIndex }
