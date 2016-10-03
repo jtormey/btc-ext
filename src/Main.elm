@@ -3,13 +3,10 @@ import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, onClick)
-import Http
-import Json.Decode as Json exposing (object2, float, int, (:=))
-import Task exposing (..)
-import String exposing (toFloat)
 import Helpers exposing (..)
-import Bitcoin exposing (..)
+import Bitcoin exposing (derive, derivation, derivationRequest)
 import Components exposing (..)
+import Types exposing (..)
 
 main =
   App.program
@@ -18,33 +15,6 @@ main =
     , update = update
     , subscriptions = subscriptions
     }
-
--- types
-
-type Msg
-  = Xpub String
-  | Balance Float
-  | Failed Http.Error
-  | Derive
-  | Derivation String
-  | Info XpubInfo
-
-type Status
-  = Loading
-  | Loaded
-
-type alias Model =
-  { xpub: String
-  , address: String
-  , nextIndex: Int
-  , balance: Float
-  , status: Status
-  }
-
-type alias XpubInfo =
-  { final_balance: Float
-  , account_index: Int
-  }
 
 -- initialization
 
@@ -115,23 +85,3 @@ view model =
       loadingView
     Loaded ->
       homeView model
-
--- helper functions, should find a way to move
-
-getInfo : String -> Cmd Msg
-getInfo xpub =
-  let
-    url = multiAddr xpub
-    decodeUrl = Json.at [ "addresses", "0" ] xpubDecoder
-  in
-    Task.perform Failed Info (Http.get decodeUrl url)
-
-xpubDecoder : Json.Decoder XpubInfo
-xpubDecoder =
-  object2 XpubInfo
-    ("final_balance" := float)
-    ("account_index" := int)
-
-derivationRequest : Model -> DerivationRequest
-derivationRequest model =
-  { xpub = model.xpub, index = model.nextIndex }
