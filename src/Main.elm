@@ -9,6 +9,7 @@ import Task exposing (..)
 import String exposing (toFloat)
 import Helpers exposing (..)
 import Bitcoin exposing (..)
+import Components exposing (..)
 
 main =
   App.program
@@ -89,26 +90,10 @@ update msg model =
 view : Model -> Html Msg
 view model =
   let
-    bal =
-      div [ class "bal-container" ]
-        [ span [] [ text (
-          if model.balance == 0
-            then "No Balance"
-            else showBalance model.balance
-          ) ]
-        ]
-    qr =
-      div [ class "qr-container" ]
-        [ img [ src (makeQr model.address), width 150, height 150 ] []
-        ]
-    addr =
-      div [ class "addr-container" ]
-        [ span [] [ text model.address ]
-        ]
-    derive =
-      div []
-        [ button [ onClick Derive ] [ text ("Derive Next: " ++ (toString model.nextIndex)) ]
-        ]
+    bal = div [ class "bal-container" ] [ balance model.balance ]
+    qr = div [ class "qr-container" ] [ qrCode 150 model.address ]
+    addr = div [ class "addr-container" ] [ span [] [ text model.address ] ]
+    derive = div [] [ stdButton Derive "Derive Next" ]
   in
     div [ class "container" ] [ bal, qr, addr, derive ]
 
