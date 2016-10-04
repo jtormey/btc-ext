@@ -21,3 +21,9 @@ qrCode qrSize address =
 stdButton : Msg -> String -> Html Msg
 stdButton action str =
   button [ onClick action ] [ text str ]
+
+enclose : ChildElems -> ChildElems
+enclose elems =
+  case elems of
+    e::es -> [ div [ class "child" ] [e] ] ++ (enclose es)
+    [] -> []

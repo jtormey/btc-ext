@@ -72,8 +72,10 @@ update msg model =
 askForXpubView : ChildElems
 askForXpubView =
   [ span [] [ text "Enter an xpub" ]
-  , input [ value model.xpub, onInput Xpub ] []
-  , stdButton ValidateXpub "Continue"
+  , div []
+    [ input [ value model.xpub, onInput Xpub ] []
+    , stdButton ValidateXpub "Continue"
+    ]
   ]
 
 statusView : String -> ChildElems
@@ -82,10 +84,10 @@ statusView status = [ text status ]
 homeView : Model -> ChildElems
 homeView model =
   let
-    bal = div [ class "bal-container" ] [ balance model.balance ]
-    qr = div [ class "qr-container" ] [ qrCode 150 model.address ]
-    addr = div [ class "addr-container" ] [ span [] [ text model.address ] ]
-    derive = div [] [ stdButton Derive "Derive Next" ]
+    bal = balance model.balance
+    qr = div [ class "pad-2" ] [ qrCode 150 model.address ]
+    addr = span [ class "break" ] [ text model.address ]
+    derive = stdButton Derive "Derive Next"
   in
     [ bal, qr, addr, derive ]
 
@@ -97,4 +99,4 @@ view model =
       Loading -> statusView "Loading..."
       LoadFailed err -> statusView err
       Loaded -> homeView model
-  in div [ class "container" ] childElems
+  in div [ class "container" ] (enclose childElems)
