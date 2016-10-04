@@ -2,6 +2,7 @@
 module Types exposing (..)
 
 import Http
+import Html exposing (..)
 
 type Msg
   = Xpub String
@@ -10,10 +11,13 @@ type Msg
   | Derive
   | Derivation String
   | Info XpubInfo
+  | ValidateXpub
 
 type Status
   = Loading
   | Loaded
+  | LoadFailed String
+  | Asking
 
 type alias Model =
   { xpub: String
@@ -27,3 +31,5 @@ type alias XpubInfo =
   { final_balance: Float
   , account_index: Int
   }
+
+type alias ChildElems = List (Html Msg)

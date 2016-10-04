@@ -2,7 +2,7 @@
 import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput, onClick)
+import Html.Events exposing (onInput)
 import Helpers exposing (..)
 import Bitcoin exposing (derive, derivation, derivationRequest)
 import Components exposing (..)
@@ -17,18 +17,19 @@ main =
     }
 
 -- initialization
+-- "xpub6DX2ZjB6qgNGPuGobYQbpwXHrn7zue1xWSpg29cw6HxovCE9F4iHqEzjnhXk1PbKrfVGwMMrgQv7Q1wWDDBYzx85C8dsvD6jqc49U2PYstx"
 
 model : Model
 model =
-  { xpub = "xpub6DX2ZjB6qgNGPuGobYQbpwXHrn7zue1xWSpg29cw6HxovCE9F4iHqEzjnhXk1PbKrfVGwMMrgQv7Q1wWDDBYzx85C8dsvD6jqc49U2PYstx"
+  { xpub = ""
   , address = ""
   , nextIndex = 0
   , balance = 0
-  , status = Loading
+  , status = Asking
   }
 
 init : (Model, Cmd Msg)
-init = (model, getInfo model.xpub)
+init = (model, Cmd.none)
 
 -- subscriptions
 
@@ -46,7 +47,7 @@ update msg model =
     Balance balance ->
       ({ model | balance = balance }, Cmd.none)
     Failed err ->
-      (model, Cmd.none)
+      ({ model | status = LoadFailed (toString err) }, Cmd.none)
     Derive ->
       (model , derive (derivationRequest model))
     Derivation address ->
@@ -61,14 +62,24 @@ update msg model =
           }
       in
         (newModel, derive (derivationRequest newModel))
+    ValidateXpub ->
+      if isXpub model.xpub
+        then ({ model | status = Loading }, getInfo model.xpub)
+        else ({ model | status = Asking }, Cmd.none)
 
 -- views
 
-loadingView : Html Msg
-loadingView =
-  div [ class "container" ] [ text "Loading..." ]
+askForXpubView : ChildElems
+askForXpubView =
+  [ span [] [ text "Enter an xpub" ]
+  , input [ value model.xpub, onInput Xpub ] []
+  , stdButton ValidateXpub "Continue"
+  ]
 
-homeView : Model -> Html Msg
+statusView : String -> ChildElems
+statusView status = [ text status ]
+
+homeView : Model -> ChildElems
 homeView model =
   let
     bal = div [ class "bal-container" ] [ balance model.balance ]
@@ -76,12 +87,14 @@ homeView model =
     addr = div [ class "addr-container" ] [ span [] [ text model.address ] ]
     derive = div [] [ stdButton Derive "Derive Next" ]
   in
-    div [ class "container" ] [ bal, qr, addr, derive ]
+    [ bal, qr, addr, derive ]
 
 view : Model -> Html Msg
 view model =
-  case model.status of
-    Loading ->
-      loadingView
-    Loaded ->
-      homeView model
+  let childElems =
+    case model.status of
+      Asking -> askForXpubView
+      Loading -> statusView "Loading..."
+      LoadFailed err -> statusView err
+      Loaded -> homeView model
+  in div [ class "container" ] childElems

@@ -1,6 +1,7 @@
 
 module Helpers exposing (..)
 
+import String exposing (left)
 import Json.Decode as Json exposing (object2, float, int, (:=))
 import Http
 import Task exposing (..)
@@ -14,6 +15,9 @@ append = flip (++)
 
 showBalance : Float -> String
 showBalance = (append " BTC") << toString << fromSatoshi
+
+isXpub : String -> Bool
+isXpub = ((==) "xpub") << left 4
 
 makeQr : String -> String
 makeQr = (++) "https://blockchain.info/qr?data="
