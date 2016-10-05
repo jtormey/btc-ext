@@ -5,7 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import Debug exposing (log)
 import String exposing (split)
-import List exposing (take, head, reverse)
+import List exposing (take, head, drop)
 import Helpers exposing (..)
 import Bitcoin exposing (derive, derivation, derivationRequest)
 import Storage exposing (set, get, storage)
@@ -76,19 +76,15 @@ update msg model =
           else ({ model | status = Asking }, Cmd.none)
     FromStorage data ->
       let
-        last = head << reverse
-        parsed = take 2 (split "," data)
-        value =
-          case last parsed of
-            Just "" -> Nothing
-            _ -> last parsed
+        kv = split "," data
+        key = head kv
+        val = head (drop 1 kv)
       in
-        case head parsed of
-          Just "xpub" -> case value of
-            Just xpub ->
-              ({ model | xpub = xpub }, getInfo xpub)
-            _ ->
-              ({ model | status = Asking }, Cmd.none)
+        case key of
+          Just "xpub" ->
+            if Maybe.map isXpub val == Just True
+              then ({ model | xpub = unwrapStr val }, getInfo (unwrapStr val))
+              else ({ model | status = Asking }, Cmd.none)
           _ ->
             (model, Cmd.none)
 

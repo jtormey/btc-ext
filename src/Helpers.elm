@@ -38,3 +38,9 @@ getInfo xpub =
     decodeUrl = Json.at [ "addresses", "0" ] xpubDecoder
   in
     Task.perform Failed Info (Http.get decodeUrl url)
+
+unwrapStr : Maybe String -> String
+unwrapStr x =
+  case x of
+    Just s -> s
+    Nothing -> ""
