@@ -12,6 +12,7 @@ type Msg
   | Derivation String
   | Info XpubInfo
   | ValidateXpub
+  | FromStorage String
 
 type Status
   = Loading

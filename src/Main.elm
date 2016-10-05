@@ -3,8 +3,12 @@ import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
+import Debug exposing (log)
+import String exposing (split)
+import List exposing (take, head, reverse)
 import Helpers exposing (..)
 import Bitcoin exposing (derive, derivation, derivationRequest)
+import Storage exposing (set, get, storage)
 import Components exposing (..)
 import Types exposing (..)
 
@@ -17,7 +21,6 @@ main =
     }
 
 -- initialization
--- "xpub6DX2ZjB6qgNGPuGobYQbpwXHrn7zue1xWSpg29cw6HxovCE9F4iHqEzjnhXk1PbKrfVGwMMrgQv7Q1wWDDBYzx85C8dsvD6jqc49U2PYstx"
 
 model : Model
 model =
@@ -25,17 +28,19 @@ model =
   , address = ""
   , nextIndex = 0
   , balance = 0
-  , status = Asking
+  , status = Loading
   }
 
 init : (Model, Cmd Msg)
-init = (model, Cmd.none)
+init = (model, get "xpub")
 
 -- subscriptions
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-  derivation Derivation
+subscriptions model = Sub.batch
+  [ derivation Derivation
+  , storage FromStorage
+  ]
 
 -- update
 
@@ -63,9 +68,29 @@ update msg model =
       in
         (newModel, derive (derivationRequest newModel))
     ValidateXpub ->
-      if isXpub model.xpub
-        then ({ model | status = Loading }, getInfo model.xpub)
-        else ({ model | status = Asking }, Cmd.none)
+      let
+        saveAndLoad = Cmd.batch [set ("xpub," ++ model.xpub), getInfo model.xpub]
+      in
+        if isXpub model.xpub
+          then ({ model | status = Loading }, saveAndLoad)
+          else ({ model | status = Asking }, Cmd.none)
+    FromStorage data ->
+      let
+        last = head << reverse
+        parsed = take 2 (split "," data)
+        value =
+          case last parsed of
+            Just "" -> Nothing
+            _ -> last parsed
+      in
+        case head parsed of
+          Just "xpub" -> case value of
+            Just xpub ->
+              ({ model | xpub = xpub }, getInfo xpub)
+            _ ->
+              ({ model | status = Asking }, Cmd.none)
+          _ ->
+            (model, Cmd.none)
 
 -- views
 
