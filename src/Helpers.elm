@@ -4,6 +4,7 @@ module Helpers exposing (..)
 import String exposing (left)
 import Json.Decode as Json exposing (object2, float, int, (:=))
 import Http
+import WebSocket
 import Task exposing (..)
 import Types exposing (..)
 
@@ -14,7 +15,7 @@ append : String -> String -> String
 append = flip (++)
 
 showBalance : Float -> String
-showBalance = (append " BTC") << toString << fromSatoshi
+showBalance = fromSatoshi >> toString >> append " BTC"
 
 isXpub : String -> Bool
 isXpub = ((==) "xpub") << left 4
@@ -44,3 +45,12 @@ unwrapStr x =
   case x of
     Just s -> s
     Nothing -> ""
+
+wsMsg : String -> Cmd Msg
+wsMsg = WebSocket.send "wss://blockchain.info/inv"
+
+ping : Cmd Msg
+ping = wsMsg "{\"op\":\"ping\"}"
+
+xpubSub : String -> Cmd Msg
+xpubSub xpub = wsMsg ("{\"op\":\"xpub_sub\",\"xpub\":\"" ++ xpub ++ "\"}")
