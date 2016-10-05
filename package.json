@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node_modules/.bin/http-server",
     "build": "node_modules/.bin/webpack -w",
+    "build:once": "node_modules/.bin/webpack",
+    "postinstall": "echo \"Y\" | elm-package install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Justin Tormey <jrtormey@gmail.com>",
