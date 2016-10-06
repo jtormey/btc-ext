@@ -1,7 +1,9 @@
 
 module Helpers exposing (..)
 
-import String exposing (left)
+import String exposing (left, split)
+import List exposing (head, drop, length, take)
+import Maybe exposing (withDefault)
 import Json.Decode as Json exposing (object2, float, int, (:=))
 import Http
 import WebSocket
@@ -54,3 +56,27 @@ ping = wsMsg "{\"op\":\"ping\"}"
 
 xpubSub : String -> Cmd Msg
 xpubSub xpub = wsMsg ("{\"op\":\"xpub_sub\",\"xpub\":\"" ++ xpub ++ "\"}")
+
+isEmpty : List a -> Bool
+isEmpty = ((==) 1) << length
+
+isKeyValue : List a -> Maybe (List a)
+isKeyValue xs = if isEmpty xs then Nothing else Just xs
+
+stringToList : String -> Maybe (List String)
+stringToList = isKeyValue << (take 2) << (split ",")
+
+elem : Int -> List a -> Maybe a
+elem i = head << (drop i)
+
+listToTuple : List String -> (String, String)
+listToTuple xs = (withDefault "" (elem 0 xs), withDefault "" (elem 1 xs))
+
+keyValue : String -> Maybe (String, String)
+keyValue s = Maybe.map listToTuple (stringToList s)
+
+extract : String -> String -> Maybe (String)
+extract key data = if (Maybe.map fst (keyValue data) == Just key) then Maybe.map snd (keyValue data) else Nothing
+
+setXpub : Model -> Maybe String -> Maybe Model
+setXpub model xpub = Maybe.map (\x -> { model | xpub = x }) xpub

@@ -77,20 +77,9 @@ update msg model =
           then ({ model | status = Loading }, saveAndLoad)
           else ({ model | status = Asking }, Cmd.none)
     FromStorage data ->
-      let
-        kv = split "," data
-        key = head kv
-        val = head (drop 1 kv)
-      in
-        case key of
-          Just "xpub" ->
-            if Maybe.map isXpub val == Just True
-              then
-                let xpub = unwrapStr val
-                in ({ model | xpub = xpub }, Cmd.batch [getInfo xpub, xpubSub xpub])
-              else ({ model | status = Asking }, Cmd.none)
-          _ ->
-            (model, Cmd.none)
+      case setXpub model (extract "xpub" data) of
+        Just m -> (m, Cmd.batch [getInfo m.xpub, xpubSub m.xpub])
+        Nothing -> ({ model | status = Asking }, Cmd.none)
     FromWs msg ->
       (model, getInfo model.xpub)
 
