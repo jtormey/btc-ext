@@ -27,6 +27,7 @@ model : Model
 model =
   { xpub = ""
   , address = ""
+  , label = ""
   , nextIndex = 0
   , balance = 0
   , status = Loading
@@ -59,6 +60,8 @@ update msg model =
       (model , derive (derivationRequest model))
     Derivation address ->
       ({ model | address = address, nextIndex = model.nextIndex + 1 }, Cmd.none)
+    SetLabel label ->
+      ({ model | label = label }, Cmd.none)
     Info info ->
       let
         newModel =
@@ -97,13 +100,19 @@ askForXpubView =
 statusView : String -> ChildElems
 statusView status = [ text status ]
 
+saveForm : Html Msg
+saveForm = div []
+  [ input [ value model.label, onInput SetLabel ] []
+  , stdButton Derive "Derive Next"
+  ]
+
 homeView : Model -> ChildElems
 homeView model =
   let
     bal = balance model.balance
     qr = div [ class "pad-2" ] [ qrCode 150 model.address ]
     addr = span [ class "break" ] [ text model.address ]
-    derive = stdButton Derive "Derive Next"
+    derive = saveForm
   in
     [ bal, qr, addr, derive ]
 

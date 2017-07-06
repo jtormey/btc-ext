@@ -10,6 +10,7 @@ type Msg
   | Failed Http.Error
   | Derive
   | Derivation String
+  | SetLabel String
   | Info XpubInfo
   | ValidateXpub
   | FromStorage String
@@ -24,6 +25,7 @@ type Status
 type alias Model =
   { xpub: String
   , address: String
+  , label: String
   , nextIndex: Int
   , balance: Float
   , status: Status
