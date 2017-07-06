@@ -1,9 +1,13 @@
 
 let config = {
-  entry: './src/index.js',
+  entry: {
+    main: './src/index.js',
+    background: './src/background.js',
+    content: './src/content.js'
+  },
   output: {
     path: 'build',
-    filename: 'bundle.js'
+    filename: '[name].bundle.js'
   },
   resolve: {
     modulesDirectories: ['node_modules'],

@@ -12,6 +12,11 @@
   },
   "author": "Justin Tormey <jrtormey@gmail.com>",
   "license": "MIT",
+  "standard": {
+    "global": [
+      "chrome"
+    ]
+  },
   "devDependencies": {
     "css-loader": "0.25.*",
     "elm-webpack-loader": "3.0.*",
