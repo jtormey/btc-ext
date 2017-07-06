@@ -10,6 +10,7 @@ import List exposing (take, head, drop)
 import Helpers exposing (..)
 import Bitcoin exposing (derive, derivation, derivationRequest)
 import Storage exposing (set, get, storage)
+import Labels as Labels
 import Components exposing (..)
 import Types exposing (..)
 
@@ -57,7 +58,12 @@ update msg model =
     Failed err ->
       ({ model | status = LoadFailed (toString err) }, Cmd.none)
     Derive ->
-      (model , derive (derivationRequest model))
+      let cmds =
+        [ Labels.save ((toString (model.nextIndex - 1)) ++ "," ++ model.label)
+        , derive (derivationRequest model)
+        ]
+      in
+        ({ model | label = "" }, Cmd.batch cmds)
     Derivation address ->
       ({ model | address = address, nextIndex = model.nextIndex + 1 }, Cmd.none)
     SetLabel label ->
@@ -100,9 +106,9 @@ askForXpubView =
 statusView : String -> ChildElems
 statusView status = [ text status ]
 
-saveForm : Html Msg
-saveForm = div []
-  [ input [ value model.label, onInput SetLabel ] []
+saveForm : String -> Html Msg
+saveForm label = div []
+  [ input [ value label, onInput SetLabel ] []
   , stdButton Derive "Derive Next"
   ]
 
@@ -112,7 +118,7 @@ homeView model =
     bal = balance model.balance
     qr = div [ class "pad-2" ] [ qrCode 150 model.address ]
     addr = span [ class "break" ] [ text model.address ]
-    derive = saveForm
+    derive = saveForm model.label
   in
     [ bal, qr, addr, derive ]
 

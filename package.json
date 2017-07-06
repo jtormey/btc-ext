@@ -14,7 +14,8 @@
   "license": "MIT",
   "standard": {
     "global": [
-      "chrome"
+      "chrome",
+      "localStorage"
     ]
   },
   "devDependencies": {

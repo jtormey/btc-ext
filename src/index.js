@@ -25,3 +25,7 @@ app.ports.get.subscribe((key) => {
   let value = localStorage.getItem(key)
   app.ports.storage.send([key, value].join(','))
 })
+
+app.ports.save.subscribe((data) => {
+  let [index, label] = data.split(',')
+})
