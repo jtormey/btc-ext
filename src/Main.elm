@@ -1,4 +1,3 @@
-
 import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
@@ -30,6 +29,7 @@ model =
   , address = ""
   , label = ""
   , nextIndex = 0
+  , lastLabeled = 0
   , balance = 0
   , status = Loading
   }
@@ -43,6 +43,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model = Sub.batch
   [ derivation Derivation
   , storage FromStorage
+  , Labels.lastIndex LastIndex
   , WebSocket.listen "wss://blockchain.info/inv" FromWs
   ]
 
@@ -68,12 +69,14 @@ update msg model =
       ({ model | address = address, nextIndex = model.nextIndex + 1 }, Cmd.none)
     SetLabel label ->
       ({ model | label = label }, Cmd.none)
+    LastIndex index ->
+      ({ model | lastLabeled = index }, Cmd.none)
     Info info ->
       let
         newModel =
           { model
           | balance = info.final_balance
-          , nextIndex = info.account_index
+          , nextIndex = (Basics.max info.account_index (model.lastLabeled + 1))
           , status = Loaded
           }
       in

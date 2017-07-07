@@ -11,6 +11,7 @@ type Msg
   | Derive
   | Derivation String
   | SetLabel String
+  | LastIndex Int
   | Info XpubInfo
   | ValidateXpub
   | FromStorage String
@@ -27,6 +28,7 @@ type alias Model =
   , address: String
   , label: String
   , nextIndex: Int
+  , lastLabeled: Int
   , balance: Float
   , status: Status
   }
