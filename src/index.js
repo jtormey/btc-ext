@@ -3,6 +3,7 @@
 
 require('!style!css!sass!./main.scss')
 let { HDNode } = require('bitcoinjs-lib')
+let labels = require('./labels')
 
 let deriveFromXpub = (xpub, index) => (
   HDNode.fromBase58(xpub).derive(0).derive(index).getAddress()
@@ -25,22 +26,6 @@ app.ports.get.subscribe((key) => {
   let value = localStorage.getItem(key)
   app.ports.storage.send([key, value].join(','))
 })
-
-let labels = {
-  name: 'labels',
-  save (entry) {
-    let labels = this.read()
-    labels.push(entry)
-    localStorage.setItem(this.name, JSON.stringify(labels))
-  },
-  read () {
-    return JSON.parse(localStorage.getItem(this.name) || '[]')
-  },
-  lastIndex () {
-    let labels = this.read()
-    return labels.map(l => l.index).reduce((a, i) => Math.max(a, i), 0)
-  }
-}
 
 app.ports.save.subscribe((data) => {
   let [index, label] = data.split(',')
