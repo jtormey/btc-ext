@@ -18,9 +18,9 @@ qrCode : Int -> String -> Html Msg
 qrCode qrSize address =
   img [ src (makeQr address), width qrSize, height qrSize ] []
 
-stdButton : Msg -> String -> Html Msg
-stdButton action str =
-  button [ onClick action ] [ text str ]
+stdButton : Msg -> Bool -> String -> Html Msg
+stdButton action isDisabled str =
+  button [ onClick action, disabled isDisabled ] [ text str ]
 
 enclose : ChildElems -> ChildElems
 enclose elems =

@@ -102,17 +102,17 @@ askForXpubView =
   [ span [] [ text "Enter an xpub" ]
   , div []
     [ input [ value model.xpub, onInput Xpub ] []
-    , stdButton ValidateXpub "Continue"
+    , stdButton ValidateXpub False "Continue"
     ]
   ]
 
 statusView : String -> ChildElems
 statusView status = [ text status ]
 
-saveForm : String -> Html Msg
-saveForm label = div []
+inputLabelForm : String -> Html Msg
+inputLabelForm label = div []
   [ input [ value label, onInput SetLabel ] []
-  , stdButton Derive "Derive Next"
+  , stdButton Derive (label == "") "Derive Next"
   ]
 
 homeView : Model -> ChildElems
@@ -121,7 +121,7 @@ homeView model =
     bal = balance model.balance
     qr = div [ class "pad-2" ] [ qrCode 150 model.address ]
     addr = span [ class "break" ] [ text model.address ]
-    derive = saveForm model.label
+    derive = inputLabelForm model.label
   in
     [ bal, qr, addr, derive ]
 
