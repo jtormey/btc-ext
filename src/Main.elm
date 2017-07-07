@@ -113,7 +113,7 @@ homeView : Model -> ChildElems
 homeView model =
   let
     bal = balance model.balance
-    qr = div [ class "pad-2" ] [ qrCode 150 model.address ]
+    qr = div [ class "pad-1" ] [ qrCode 150 model.address ]
     addr = span [ class "break" ] [ text model.address ]
     derive = inputLabelForm model.label
   in
