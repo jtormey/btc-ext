@@ -109,12 +109,6 @@ askForXpubView =
 statusView : String -> ChildElems
 statusView status = [ text status ]
 
-inputLabelForm : String -> Html Msg
-inputLabelForm label = div []
-  [ input [ value label, onInput SetLabel ] []
-  , stdButton Derive (label == "") "Derive Next"
-  ]
-
 homeView : Model -> ChildElems
 homeView model =
   let

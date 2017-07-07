@@ -3,7 +3,7 @@ module Components exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events exposing (onClick, onInput)
 import Helpers exposing (showBalance, makeQr)
 import Types exposing (..)
 
@@ -21,6 +21,12 @@ qrCode qrSize address =
 stdButton : Msg -> Bool -> String -> Html Msg
 stdButton action isDisabled str =
   button [ onClick action, disabled isDisabled ] [ text str ]
+
+inputLabelForm : String -> Html Msg
+inputLabelForm label = div []
+  [ input [ value label, onInput SetLabel ] []
+  , stdButton Derive (label == "") "Derive Next"
+  ]
 
 enclose : ChildElems -> ChildElems
 enclose elems =
