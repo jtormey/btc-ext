@@ -44,7 +44,7 @@ let labels = {
 
 app.ports.save.subscribe((data) => {
   let [index, label] = data.split(',')
-  labels.save({ index, label })
+  labels.save({ index: parseInt(index), label })
 })
 
 app.ports.lastIndex.send(labels.lastIndex())
