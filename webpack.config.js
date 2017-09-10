@@ -1,32 +1,35 @@
+const path = require('path')
 
-let config = {
+let resolve = (f) => path.resolve(__dirname, f)
+
+module.exports = {
   entry: {
-    main: './src/index.js',
-    background: './src/background.js',
-    content: './src/content.js'
+    main: resolve('src/index.js'),
+    background: resolve('src/background.js'),
+    content: resolve('src/content.js')
   },
   output: {
-    path: 'build',
+    path: resolve('build'),
     filename: '[name].bundle.js'
   },
   resolve: {
-    modulesDirectories: ['node_modules'],
-    extensions: ['', '.js', '.elm']
+    extensions: ['.js', '.elm']
   },
-  loaders: [{
-    test: /\.scss$/,
-    loader: ['style', 'css', 'sass']
-  }],
   module: {
-    loaders: [{
-      test: /\.json$/,
-      loader: 'json'
-    }, {
-      test: /\.elm$/,
-      exclude: [/elm-stuff/, /node_modules/],
-      loader: 'elm-webpack'
-    }]
+    rules: [
+      {
+        test: /\.json$/,
+        use: 'json-loader'
+      },
+      {
+        test: /\.scss$/,
+        use: ['style-loader', 'css-loader', 'sass-loader']
+      },
+      {
+        test: /\.elm$/,
+        exclude: [/elm-stuff/, /node_modules/],
+        use: 'elm-webpack-loader'
+      }
+    ]
   }
 }
-
-module.exports = config

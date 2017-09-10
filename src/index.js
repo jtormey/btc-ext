@@ -1,7 +1,7 @@
 
 // xpub6DX2ZjB6qgNGPuGobYQbpwXHrn7zue1xWSpg29cw6HxovCE9F4iHqEzjnhXk1PbKrfVGwMMrgQv7Q1wWDDBYzx85C8dsvD6jqc49U2PYstx
 
-require('!style!css!sass!./main.scss')
+require('./main.scss')
 let { HDNode } = require('bitcoinjs-lib')
 let labels = require('./labels')
 
