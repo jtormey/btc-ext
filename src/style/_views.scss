@@ -1,0 +1,22 @@
+.login-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-view {
+  flex: 1;
+  display: flex;
+  height: 150px;
+
+  .home-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 16px 32px;
+    padding-right: 0px;
+  }
+}

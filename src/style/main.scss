@@ -1,24 +1,13 @@
+// colors
+$primary: #78909C;
+$text: white;
 
-body {
-  padding: 2em;
-  margin: 0px;
-}
+// sizing
+$fontsize: 14px;
+$hpad: 32px;
+$width: 580px;
+$height: 272px;
 
-.container {
-  width: 15em;
-  text-align: center;
-  font-family: Helvetica;
-  font-size: 1.5em;
-}
-
-.pad-1 {
-  padding: 1em;
-}
-
-.break {
-  word-wrap: break-word;
-}
-
-.child {
-  margin-top: 1em;
-}
+@import "./general";
+@import "./views";
+@import "./elements";

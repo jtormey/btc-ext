@@ -96,25 +96,34 @@ update msg model =
 
 askForXpubView : ChildElems
 askForXpubView =
-  [ span [] [ text "Enter an xpub" ]
-  , div []
-    [ input [ value model.xpub, onInput Xpub ] []
-    , stdButton ValidateXpub False "Continue"
+  [ div [ class "login-view" ]
+    [ div [ class "maintext mbl" ] [ text "Enter an xpub to get started" ]
+    , div [ class "w100 flex-center" ]
+      [ input [ class "text-input", value model.xpub, onInput Xpub ] []
+      , stdButton ValidateXpub False "Continue"
+      ]
     ]
   ]
 
 statusView : String -> ChildElems
-statusView status = [ text status ]
+statusView status = [ div [ class "maintext" ] [ text status ] ]
 
 homeView : Model -> ChildElems
 homeView model =
   let
     bal = balance model.balance
-    qr = div [ class "pad-1" ] [ qrCode 150 model.address ]
-    addr = span [ class "break" ] [ text model.address ]
+    qr = qrCode 150 model.address
+    addr = div [ class "subtext" ] [ text model.address ]
     derive = inputLabelForm model.label
   in
-    [ bal, qr, addr, derive ]
+    [ div [ class "home-view" ]
+      [ qr
+      , div [ class "home-info" ]
+        [ div [ ] [ bal, addr ]
+        , derive
+        ]
+      ]
+    ]
 
 view : Model -> Html Msg
 view model =
@@ -124,4 +133,7 @@ view model =
       Loading -> statusView "Loading..."
       LoadFailed err -> statusView err
       Loaded -> homeView model
-  in div [ class "container" ] (enclose childElems)
+  in div [ class "container" ]
+    [ extHeader []
+    , div [ class "body" ] childElems
+    ]

@@ -1,0 +1,26 @@
+.text-input {
+  flex: 1;
+  height: 32px;
+  border: 1px solid #ddd;
+  outline: none;
+  font-size: 12px;
+}
+
+.std-button {
+  background: $primary;
+  color: $text;
+  height: 32px;
+  padding: 0px 16px;
+  border: none;
+  outline: none;
+  font-size: 12px;;
+}
+
+.maintext {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.subtext {
+  font-size: 14px;
+}
