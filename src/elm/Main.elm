@@ -30,6 +30,7 @@ model =
   , lastLabeled = 0
   , balance = 0
   , status = Loading
+  , labels = []
   }
 
 init : (Model, Cmd Msg)
@@ -41,6 +42,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model = Sub.batch
   [ derivation Derivation
   , storage FromStorage
+  , Labels.readResponse ReadLabels
   , Labels.lastIndex LastIndex
   ]
 
@@ -93,6 +95,14 @@ update msg model =
         Nothing -> ({ model | status = Asking }, Cmd.none)
     Logout ->
       ({ model | status = Asking }, remove "xpub")
+    ViewLabels ->
+      ({ model | status = Loading }, Labels.readLabels ())
+    ReadLabels labelsStr ->
+      case decodeLabelsStr labelsStr of
+        Ok labels -> ({ model | status = Labels, labels = labels }, Cmd.none)
+        Err err -> ({ model | status = LoadFailed err }, Cmd.none)
+    Home ->
+      ({ model | status = Loaded }, Cmd.none)
 
 -- views
 
@@ -127,6 +137,18 @@ homeView model =
       ]
     ]
 
+labelsView : Model -> ChildElems
+labelsView model =
+  let
+    makeLabel entry = div [ class "label-entry" ]
+      [ div [] [ text entry.label ]
+      , div [] [ text ("index: " ++ (toString entry.index)) ]
+      ]
+  in
+    [ div [ class "label-view" ] (
+      List.map makeLabel model.labels |> List.reverse
+    ) ]
+
 view : Model -> Html Msg
 view model =
   let
@@ -136,10 +158,16 @@ view model =
         Loading -> statusView "Loading..."
         LoadFailed err -> statusView err
         Loaded -> homeView model
+        Labels -> labelsView model
     headerActions =
-      case model.status of
-        Loaded -> [ stdLink Logout "Logout" ]
-        _ -> []
+      if model.status == Loaded || model.status == Labels
+        then
+          [ stdLink Home "Home"
+          , stdLink ViewLabels "Labels"
+          , stdLink Logout "Logout"
+          ]
+        else
+          []
   in div [ class "container" ]
     [ extHeader headerActions
     , div [ class "body" ] childElems

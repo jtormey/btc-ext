@@ -36,4 +36,9 @@ app.ports.save.subscribe((data) => {
   labels.save({ index: parseInt(index), label })
 })
 
+app.ports.readLabels.subscribe(() => {
+  let labelsStr = JSON.stringify(labels.read())
+  app.ports.readResponse.send(labelsStr)
+})
+
 app.ports.lastIndex.send(labels.lastIndex())

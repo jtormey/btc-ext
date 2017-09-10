@@ -20,3 +20,15 @@
     padding-right: 0px;
   }
 }
+
+.label-view {
+  flex: 1;
+  height: $height - 48px;
+
+  .label-entry {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    border-bottom: 1px solid #ddd;
+  }
+}

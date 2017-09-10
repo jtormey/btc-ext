@@ -4,7 +4,7 @@ import String exposing (left, split)
 import List exposing (head, drop, length, take)
 import Tuple exposing (first, second)
 import Maybe exposing (withDefault)
-import Json.Decode as Json exposing (map2, float, int, field)
+import Json.Decode as Json exposing (map2, float, int, string, list, field)
 import Http
 import Types exposing (..)
 
@@ -70,3 +70,12 @@ extract key data = if (Maybe.map first (keyValue data) == Just key)
 
 setXpub : Model -> Maybe String -> Maybe Model
 setXpub model xpub = Maybe.map (\x -> { model | xpub = x }) xpub
+
+labelDecoder : Json.Decoder LabelEntry
+labelDecoder =
+  map2 LabelEntry
+    (field "index" int)
+    (field "label" string)
+
+decodeLabelsStr : String -> Result String (List LabelEntry)
+decodeLabelsStr = Json.decodeString (list labelDecoder)
