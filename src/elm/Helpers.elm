@@ -42,11 +42,8 @@ getInfo xpub =
   in
     Http.send XpubResult getInfoReq
 
-unwrapStr : Maybe String -> String
-unwrapStr x =
-  case x of
-    Just s -> s
-    Nothing -> ""
+wrapStr : String -> Maybe String
+wrapStr s = if s == "" then Nothing else Just s
 
 isEmpty : List a -> Bool
 isEmpty = ((==) 1) << length
@@ -67,7 +64,9 @@ keyValue : String -> Maybe (String, String)
 keyValue s = Maybe.map listToTuple (stringToList s)
 
 extract : String -> String -> Maybe (String)
-extract key data = if (Maybe.map first (keyValue data) == Just key) then Maybe.map second (keyValue data) else Nothing
+extract key data = if (Maybe.map first (keyValue data) == Just key)
+    then Maybe.andThen wrapStr (Maybe.map second (keyValue data))
+    else Nothing
 
 setXpub : Model -> Maybe String -> Maybe Model
 setXpub model xpub = Maybe.map (\x -> { model | xpub = x }) xpub
