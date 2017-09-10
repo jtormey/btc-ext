@@ -2,7 +2,6 @@ import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
-import WebSocket
 import Debug exposing (log)
 import String exposing (split)
 import List exposing (take, head, drop)
@@ -44,7 +43,6 @@ subscriptions model = Sub.batch
   [ derivation Derivation
   , storage FromStorage
   , Labels.lastIndex LastIndex
-  , WebSocket.listen "wss://blockchain.info/inv" FromWs
   ]
 
 -- update
@@ -83,17 +81,15 @@ update msg model =
         (newModel, derive (derivationRequest newModel))
     ValidateXpub ->
       let
-        saveAndLoad = Cmd.batch [set ("xpub," ++ model.xpub), getInfo model.xpub, xpubSub model.xpub]
+        saveAndLoad = Cmd.batch [set ("xpub," ++ model.xpub), getInfo model.xpub]
       in
         if isXpub model.xpub
           then ({ model | status = Loading }, saveAndLoad)
           else ({ model | status = Asking }, Cmd.none)
     FromStorage data ->
       case setXpub model (extract "xpub" data) of
-        Just m -> (m, Cmd.batch [getInfo m.xpub, xpubSub m.xpub])
+        Just m -> (m, getInfo m.xpub)
         Nothing -> ({ model | status = Asking }, Cmd.none)
-    FromWs msg ->
-      (model, getInfo model.xpub)
 
 -- views
 

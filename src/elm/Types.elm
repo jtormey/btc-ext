@@ -15,7 +15,6 @@ type Msg
   | Info XpubInfo
   | ValidateXpub
   | FromStorage String
-  | FromWs String
 
 type Status
   = Loading

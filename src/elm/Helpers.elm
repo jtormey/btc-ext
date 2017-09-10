@@ -48,15 +48,6 @@ unwrapStr x =
     Just s -> s
     Nothing -> ""
 
-wsMsg : String -> Cmd Msg
-wsMsg = WebSocket.send "wss://blockchain.info/inv"
-
-ping : Cmd Msg
-ping = wsMsg "{\"op\":\"ping\"}"
-
-xpubSub : String -> Cmd Msg
-xpubSub xpub = wsMsg ("{\"op\":\"xpub_sub\",\"xpub\":\"" ++ xpub ++ "\"}")
-
 isEmpty : List a -> Bool
 isEmpty = ((==) 1) << length
 
