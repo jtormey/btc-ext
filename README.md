@@ -1,14 +1,13 @@
-
 # SatoshiXT
 
 Read-only xpub chrome extension
 
 ## Running Locally
 
-Install dependencies: `npm install`
+Install dependencies: `yarn`
 
-Build and watch for changes: `npm run build`
+Build and watch for changes: `yarn build`
 
-Build once: `npm run build:once`
+Build once: `yarn build:once`
 
-Run dev server: `npm start` (will start on localhost:8080)
+Run dev server: `yarn start` (will start on localhost:8080)
