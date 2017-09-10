@@ -6,7 +6,7 @@ import String exposing (split)
 import List exposing (take, head, drop)
 import Helpers exposing (..)
 import Bitcoin exposing (derive, derivation, derivationRequest)
-import Storage exposing (set, get, storage)
+import Storage exposing (set, get, remove, storage)
 import Labels as Labels
 import Components exposing (..)
 import Types exposing (..)
@@ -91,6 +91,8 @@ update msg model =
       case setXpub model (extract "xpub" data) of
         Just m -> (m, getInfo m.xpub)
         Nothing -> ({ model | status = Asking }, Cmd.none)
+    Logout ->
+      ({ model | status = Asking }, remove "xpub")
 
 -- views
 
@@ -127,13 +129,18 @@ homeView model =
 
 view : Model -> Html Msg
 view model =
-  let childElems =
-    case model.status of
-      Asking -> askForXpubView
-      Loading -> statusView "Loading..."
-      LoadFailed err -> statusView err
-      Loaded -> homeView model
+  let
+    childElems =
+      case model.status of
+        Asking -> askForXpubView
+        Loading -> statusView "Loading..."
+        LoadFailed err -> statusView err
+        Loaded -> homeView model
+    headerActions =
+      case model.status of
+        Loaded -> [ stdLink Logout "Logout" ]
+        _ -> []
   in div [ class "container" ]
-    [ extHeader []
+    [ extHeader headerActions
     , div [ class "body" ] childElems
     ]

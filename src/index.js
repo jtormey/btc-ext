@@ -27,6 +27,10 @@ app.ports.get.subscribe((key) => {
   app.ports.storage.send([key, value].join(','))
 })
 
+app.ports.remove.subscribe((key) => {
+  localStorage.removeItem(key)
+})
+
 app.ports.save.subscribe((data) => {
   let [index, label] = data.split(',')
   labels.save({ index: parseInt(index), label })

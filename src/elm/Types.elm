@@ -15,6 +15,7 @@ type Msg
   | Info XpubInfo
   | ValidateXpub
   | FromStorage String
+  | Logout
 
 type Status
   = Loading

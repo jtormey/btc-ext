@@ -27,6 +27,10 @@ stdButton : Msg -> Bool -> String -> Html Msg
 stdButton action isDisabled str =
   button [ class "std-button", onClick action, disabled isDisabled ] [ text str ]
 
+stdLink : Msg -> String -> Html Msg
+stdLink action str =
+  span [ class "std-link", onClick action ] [ text str ]
+
 inputLabelForm : String -> Html Msg
 inputLabelForm label = div [ class "flex-center" ]
   [ input [ class "text-input", value label, onInput SetLabel ] []
