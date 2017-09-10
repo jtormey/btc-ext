@@ -6,27 +6,11 @@
   "description": "Chrome extension for convenient xpub access",
   "author": "Justin Tormey <jrtormey@gmail.com>",
   "icons": {},
-  "permissions": [
-    "tabs"
-  ],
+  "permissions": [],
   "browser_action": {
     "default_title": "SatoshiXT",
     "default_popup": "index.html"
   },
-  "background": {
-    "persistent": false,
-    "scripts": [
-      "build/background.bundle.js"
-    ]
-  },
-  "content_scripts": [
-    {
-      "matches": [
-        "http://localhost/*"
-      ],
-      "js": [
-        "build/content.bundle.js"
-      ]
-    }
-  ]
+  "background": {},
+  "content_scripts": []
 }

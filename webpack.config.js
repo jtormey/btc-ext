@@ -4,9 +4,7 @@ let resolve = (f) => path.resolve(__dirname, f)
 
 module.exports = {
   entry: {
-    main: resolve('src/index.js'),
-    background: resolve('src/background.js'),
-    content: resolve('src/content.js')
+    main: resolve('src/index.js')
   },
   output: {
     path: resolve('build'),
