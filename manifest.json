@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "SatoshiXT",
+  "name": "BTC EXT",
   "version": "0.0.0",
   "version_name": "dev-alpha",
   "description": "Chrome extension for convenient xpub access",
@@ -8,7 +8,7 @@
   "icons": {},
   "permissions": [],
   "browser_action": {
-    "default_title": "SatoshiXT",
+    "default_title": "BTC EXT",
     "default_popup": "index.html"
   },
   "background": {},

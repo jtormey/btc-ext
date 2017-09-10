@@ -1,5 +1,5 @@
 {
-  "name": "satoshi-xt",
+  "name": "btc-ext",
   "version": "0.0.0",
   "description": "Chrome extension for convenient xpub access",
   "main": "src/index.js",

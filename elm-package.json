@@ -1,7 +1,7 @@
 {
     "version": "0.0.0",
     "summary": "Chrome extension for convenient xpub access",
-    "repository": "https://github.com/jtormey/satoshi-xt.git",
+    "repository": "https://github.com/jtormey/btc-ext.git",
     "license": "MIT",
     "source-directories": [
         "./src/elm"

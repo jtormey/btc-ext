@@ -1,4 +1,4 @@
-# SatoshiXT
+# BTC EXT
 
 Read-only xpub chrome extension
 
