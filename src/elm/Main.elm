@@ -1,5 +1,4 @@
 import Html exposing (..)
-import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import Debug exposing (log)
@@ -13,7 +12,7 @@ import Components exposing (..)
 import Types exposing (..)
 
 main =
-  App.program
+  Html.program
     { init = init
     , view = view
     , update = update
@@ -54,7 +53,9 @@ update msg model =
       ({ model | xpub = xpub }, Cmd.none)
     Balance balance ->
       ({ model | balance = balance }, Cmd.none)
-    Failed err ->
+    XpubResult (Ok info) ->
+      update (Info info) model
+    XpubResult (Err err) ->
       ({ model | status = LoadFailed (toString err) }, Cmd.none)
     Derive ->
       let cmds =

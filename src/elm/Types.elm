@@ -7,7 +7,7 @@ import Html exposing (..)
 type Msg
   = Xpub String
   | Balance Float
-  | Failed Http.Error
+  | XpubResult (Result Http.Error XpubInfo)
   | Derive
   | Derivation String
   | SetLabel String
