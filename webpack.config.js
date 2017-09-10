@@ -31,5 +31,8 @@ module.exports = {
         use: 'elm-webpack-loader'
       }
     ]
+  },
+  devServer: {
+    port: 8080
   }
 }

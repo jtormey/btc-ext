@@ -6,8 +6,6 @@ Read-only xpub chrome extension
 
 Install dependencies: `yarn`
 
-Build and watch for changes: `yarn build`
+Run dev server: `yarn start` (:8080)
 
-Build once: `yarn build:once`
-
-Run dev server: `yarn start` (will start on localhost:8080)
+Build files: `yarn build`
