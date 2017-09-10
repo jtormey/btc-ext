@@ -1,3 +1,4 @@
+import '../manifest.json?loadfile'
 import './main.scss'
 import { HDNode } from 'bitcoinjs-lib'
 import * as labels from './labels'

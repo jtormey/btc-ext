@@ -18,7 +18,18 @@ module.exports = {
     rules: [
       {
         test: /\.json$/,
-        use: 'json-loader'
+        oneOf: [
+          {
+            resourceQuery: /loadfile/,
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]'
+            }
+          },
+          {
+            use: 'json-loader'
+          }
+        ]
       },
       {
         test: /\.scss$/,

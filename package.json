@@ -20,9 +20,10 @@
   "devDependencies": {
     "css-loader": "0.25.*",
     "elm-webpack-loader": "3.0.*",
+    "file-loader": "^0.11.2",
     "html-webpack-plugin": "^2.30.1",
     "http-server": "0.9.*",
-    "json-loader": "0.5.*",
+    "json-loader": "^0.5.7",
     "node-sass": "3.10.*",
     "sass-loader": "4.0.*",
     "standard": "^10.0.2",
