@@ -1,5 +1,4 @@
-
-port module Bitcoin exposing (..)
+port module Ports.Bitcoin exposing (..)
 
 import Types exposing (Model)
 

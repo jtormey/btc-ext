@@ -4,9 +4,9 @@ import Debug exposing (log)
 import String exposing (split)
 import List exposing (take, head, drop)
 import Helpers exposing (..)
-import Bitcoin exposing (derive, derivation, derivationRequest)
-import Storage exposing (set, get, remove, storage)
-import Labels as Labels
+import Ports.Bitcoin exposing (derive, derivation, derivationRequest)
+import Ports.Storage as Storage exposing (storage)
+import Ports.Labels as Labels
 import Components exposing (..)
 import Types exposing (..)
 
@@ -75,7 +75,10 @@ update msg model =
         (newModel, derive (derivationRequest newModel))
     ValidateXpub ->
       let
-        saveAndLoad = Cmd.batch [set ("xpub," ++ model.xpub), getInfo model.xpub]
+        saveAndLoad = Cmd.batch
+          [ Storage.set ("xpub," ++ model.xpub)
+          , getInfo model.xpub
+          ]
       in
         if isXpub model.xpub
           then ({ model | status = Loading }, saveAndLoad)
@@ -85,7 +88,7 @@ update msg model =
         Just m -> (m, getInfo m.xpub)
         Nothing -> ({ model | status = Asking }, Cmd.none)
     Logout ->
-      ({ model | status = Asking }, remove "xpub")
+      ({ model | status = Asking }, Storage.remove "xpub")
     ViewLabels ->
       ({ model | status = Loading }, Labels.readLabels ())
     ReadLabels labelsStr ->

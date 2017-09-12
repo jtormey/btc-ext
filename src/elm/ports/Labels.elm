@@ -1,5 +1,4 @@
-
-port module Labels exposing (..)
+port module Ports.Labels exposing (..)
 
 port save : String -> (Cmd msg)
 port readLabels : () -> (Cmd msg)

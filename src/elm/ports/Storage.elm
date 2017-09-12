@@ -1,5 +1,4 @@
-
-port module Storage exposing (..)
+port module Ports.Storage exposing (..)
 
 port set : String -> (Cmd msg)
 port get : String -> (Cmd msg)
