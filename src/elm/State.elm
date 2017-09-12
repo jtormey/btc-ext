@@ -4,7 +4,8 @@ import Debug exposing (log)
 import String exposing (split)
 import List exposing (take, head, drop)
 import Helpers exposing (..)
-import Ports.Bitcoin exposing (derive, derivation, derivationRequest)
+import Bitcoin.Ports as Bitcoin
+import Bitcoin.HD as HD
 import Ports.Storage as Storage exposing (storage)
 import Ports.Labels as Labels
 import Components exposing (..)
@@ -31,7 +32,7 @@ initialState = (model, Storage.get "xpub")
 
 subscriptions : Model -> Sub Msg
 subscriptions model = Sub.batch
-  [ derivation Derivation
+  [ Bitcoin.derivation Derivation
   , storage FromStorage
   , Labels.readResponse ReadLabels
   , Labels.lastIndex LastIndex
@@ -53,7 +54,7 @@ update msg model =
     Derive ->
       let cmds =
         [ Labels.save ((toString (model.nextIndex - 1)) ++ "," ++ model.label)
-        , derive (derivationRequest model)
+        , Bitcoin.derive (HD.derivationRequest model.xpub model.nextIndex)
         ]
       in
         ({ model | label = "" }, Cmd.batch cmds)
@@ -65,14 +66,14 @@ update msg model =
       ({ model | lastLabeled = index }, Cmd.none)
     Info info ->
       let
-        newModel =
+        m =
           { model
           | balance = info.final_balance
           , nextIndex = (Basics.max info.account_index (model.lastLabeled + 1))
           , status = Loaded
           }
       in
-        (newModel, derive (derivationRequest newModel))
+        (m, Bitcoin.derive (HD.derivationRequest m.xpub m.nextIndex))
     ValidateXpub ->
       let
         saveAndLoad = Cmd.batch
