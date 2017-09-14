@@ -11,6 +11,8 @@ import Ports.Labels as Labels
 import Components exposing (..)
 import Types exposing (..)
 
+xpubKey = "@btc-ext:xpub"
+
 -- model
 
 model : Model
@@ -26,7 +28,7 @@ model =
   }
 
 initialState : (Model, Cmd Msg)
-initialState = (model, Storage.get "xpub")
+initialState = (model, Storage.get xpubKey)
 
 -- subscriptions
 
@@ -75,7 +77,7 @@ update msg model =
     ValidateXpub ->
       let
         saveAndLoad = Cmd.batch
-          [ Storage.set ("xpub," ++ model.xpub)
+          [ Storage.set (xpubKey ++ "," ++ model.xpub)
           , getInfo model.xpub
           ]
       in
@@ -83,11 +85,11 @@ update msg model =
           then ({ model | status = Loading }, saveAndLoad)
           else ({ model | status = Asking }, Cmd.none)
     FromStorage data ->
-      case setXpub model (extract "xpub" data) of
+      case setXpub model (extract xpubKey data) of
         Just m -> (m, getInfo m.xpub)
         Nothing -> ({ model | status = Asking }, Cmd.none)
     Logout ->
-      ({ model | status = Asking }, Storage.remove "xpub")
+      ({ model | status = Asking }, Storage.remove xpubKey)
     ViewLabels ->
       ({ model | status = Loading }, Labels.readLabels ())
     ReadLabels labelsStr ->

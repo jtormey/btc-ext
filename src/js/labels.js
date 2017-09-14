@@ -1,4 +1,4 @@
-const STORE_KEY = 'labels'
+const STORE_KEY = '@btc-ext:labels'
 
 class Labels {
   save (entry) {
