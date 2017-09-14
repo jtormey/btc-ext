@@ -12,7 +12,6 @@ type Msg
   | Derivation String
   | SetLabel String
   | LastIndex Int
-  | Info XpubInfo
   | ValidateXpub
   | FromStorage String
   | Logout

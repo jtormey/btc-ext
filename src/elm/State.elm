@@ -48,7 +48,15 @@ update msg model =
     Balance balance ->
       ({ model | balance = balance }, Cmd.none)
     XpubResult (Ok info) ->
-      update (Info info) model
+      let
+        m =
+          { model
+          | balance = info.final_balance
+          , nextIndex = (Basics.max info.account_index (model.lastLabeled + 1))
+          , status = Loaded
+          }
+      in
+        (m, Bitcoin.derive (HD.derivationRequest m.xpub m.nextIndex))
     XpubResult (Err err) ->
       ({ model | status = LoadFailed (toString err) }, Cmd.none)
     Derive ->
@@ -64,16 +72,6 @@ update msg model =
       ({ model | label = label }, Cmd.none)
     LastIndex index ->
       ({ model | lastLabeled = index }, Cmd.none)
-    Info info ->
-      let
-        m =
-          { model
-          | balance = info.final_balance
-          , nextIndex = (Basics.max info.account_index (model.lastLabeled + 1))
-          , status = Loaded
-          }
-      in
-        (m, Bitcoin.derive (HD.derivationRequest m.xpub m.nextIndex))
     ValidateXpub ->
       let
         saveAndLoad = Cmd.batch
