@@ -3,3 +3,4 @@ elm-stuff/
 build/
 design/
 npm-debug.log
+.env
