@@ -17,14 +17,15 @@ xpubKey = "@btc-ext:xpub"
 
 model : Model
 model =
-  { xpub = ""
-  , address = ""
-  , label = ""
+  { account = Empty
+  -- state
+  , view = Loading
   , nextIndex = 0
-  , lastLabeled = 0
   , balance = 0
-  , status = Loading
-  , labels = []
+  , address = ""
+  -- fields
+  , xpub = ""
+  , label = ""
   }
 
 initialState : (Model, Cmd Msg)
@@ -55,12 +56,12 @@ update msg model =
           { model
           | balance = info.final_balance
           , nextIndex = (Basics.max info.account_index (model.lastLabeled + 1))
-          , status = Loaded
+          , view = HomeView
           }
       in
         (m, Bitcoin.derive (HD.derivationRequest m.xpub m.nextIndex))
     XpubResult (Err err) ->
-      ({ model | status = LoadFailed (toString err) }, Cmd.none)
+      ({ model | view = LoadFailed (toString err) }, Cmd.none)
     Derive ->
       let cmds =
         [ Labels.save ((toString (model.nextIndex - 1)) ++ "," ++ model.label)
@@ -82,8 +83,8 @@ update msg model =
           ]
       in
         if isXpub model.xpub
-          then ({ model | status = Loading }, saveAndLoad)
-          else ({ model | status = Asking }, Cmd.none)
+          then ({ model | view = Loading }, saveAndLoad)
+          else ({ model }, Cmd.none)
     FromStorage data ->
       case setXpub model (extract xpubKey data) of
         Just m -> (m, getInfo m.xpub)

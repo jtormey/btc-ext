@@ -19,22 +19,30 @@ type Msg
   | ViewLabels
   | ReadLabels String
 
-type Status
+type View
   = Loading
-  | Loaded
   | LoadFailed String
-  | Asking
-  | Labels
+  | HomeView
+  | LabelsView
+
+type Account
+  = Empty
+  | NotEmpty
+    { xpub : String
+    , labels : List LabelEntry
+    }
 
 type alias Model =
-  { xpub: String
-  , address: String
-  , label: String
+  { account: Account
+  -- state
+  , view: View
   , nextIndex: Int
   , lastLabeled: Int
   , balance: Float
-  , status: Status
-  , labels: List LabelEntry
+  , address: String
+  -- fields
+  , xpub: String
+  , label: String
   }
 
 type alias XpubInfo =
