@@ -45,9 +45,13 @@ labelsView account =
       , div [] [ text ("index: " ++ (toString entry.index)) ]
       ]
   in
-    [ div [ class "label-view" ] (
-      List.map makeLabel account.labels
-    ) ]
+    if List.isEmpty account.labels
+      then
+        statusView "No Labels"
+      else
+        [ div [ class "label-view" ] (
+          List.map makeLabel account.labels
+        ) ]
 
 rootView : Model -> Html Msg
 rootView model =
