@@ -1,15 +1,17 @@
+const STORE_KEY = '@btc-ext'
+
 export const setupPorts = (ports) => {
-  ports.set.subscribe((data) => {
-    let [key, value] = data.split(',')
-    localStorage.setItem(key, value)
+  ports.updateStorage.subscribe((data) => {
+    localStorage.setItem(STORE_KEY, data)
+    ports.receiveStorage.send(data)
   })
 
-  ports.get.subscribe((key) => {
-    let value = localStorage.getItem(key)
-    ports.storage.send([key, value].join(','))
+  ports.fetchStorage.subscribe(() => {
+    let value = localStorage.getItem(STORE_KEY)
+    if (value != null) ports.receiveStorage.send(value)
   })
 
-  ports.remove.subscribe((key) => {
-    localStorage.removeItem(key)
+  ports.clearStorage.subscribe(() => {
+    localStorage.removeItem(STORE_KEY)
   })
 }

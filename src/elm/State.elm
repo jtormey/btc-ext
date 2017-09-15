@@ -1,14 +1,9 @@
 module State exposing (initialState, subscriptions, update)
 
-import Debug exposing (log)
-import String exposing (split)
-import List exposing (take, head, drop)
 import Helpers exposing (..)
 import Bitcoin.Ports as Bitcoin
 import Bitcoin.HD as HD
-import Ports.Storage as Storage exposing (storage)
-import Ports.Labels as Labels
-import Components exposing (..)
+import Storage.Store as Store
 import Types exposing (..)
 
 xpubKey = "@btc-ext:xpub"
@@ -17,28 +12,25 @@ xpubKey = "@btc-ext:xpub"
 
 model : Model
 model =
-  { account = Empty
-  -- state
+  { account = Nothing
   , view = Loading
   , nextIndex = 0
+  , lastLabeled = 0
   , balance = 0
   , address = ""
-  -- fields
   , xpub = ""
   , label = ""
   }
 
 initialState : (Model, Cmd Msg)
-initialState = (model, Storage.get xpubKey)
+initialState = (model, Store.loadStore)
 
 -- subscriptions
 
 subscriptions : Model -> Sub Msg
 subscriptions model = Sub.batch
   [ Bitcoin.derivation Derivation
-  , storage FromStorage
-  , Labels.readResponse ReadLabels
-  , Labels.lastIndex LastIndex
+  , Store.subscribeToStore StoreSub
   ]
 
 -- update
@@ -46,6 +38,19 @@ subscriptions model = Sub.batch
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
+    StoreSub (Ok account) ->
+      let
+        getLastLabeled = (List.map (\x -> x.index)) >> (List.foldl Basics.max 0)
+      in
+        (
+          { model
+          | account = Just account
+          , lastLabeled = getLastLabeled account.labels
+          }
+        , getInfo account.xpub
+        )
+    StoreSub (Err err) ->
+      (model, Cmd.none)
     Xpub xpub ->
       ({ model | xpub = xpub }, Cmd.none)
     Balance balance ->
@@ -56,16 +61,16 @@ update msg model =
           { model
           | balance = info.final_balance
           , nextIndex = (Basics.max info.account_index (model.lastLabeled + 1))
-          , view = HomeView
+          , view = if model.view == Loading then HomeView else model.view
           }
       in
-        (m, Bitcoin.derive (HD.derivationRequest m.xpub m.nextIndex))
+        (m, Bitcoin.derive (HD.derivationRequest info.address m.nextIndex))
     XpubResult (Err err) ->
       ({ model | view = LoadFailed (toString err) }, Cmd.none)
-    Derive ->
+    Derive xpub label ->
       let cmds =
-        [ Labels.save ((toString (model.nextIndex - 1)) ++ "," ++ model.label)
-        , Bitcoin.derive (HD.derivationRequest model.xpub model.nextIndex)
+        [ Store.syncStore (Maybe.map (\x -> { x | labels = { label = label, index = model.nextIndex - 1 } :: x.labels }) model.account)
+        , Bitcoin.derive (HD.derivationRequest xpub model.nextIndex)
         ]
       in
         ({ model | label = "" }, Cmd.batch cmds)
@@ -73,29 +78,23 @@ update msg model =
       ({ model | address = address, nextIndex = model.nextIndex + 1 }, Cmd.none)
     SetLabel label ->
       ({ model | label = label }, Cmd.none)
-    LastIndex index ->
-      ({ model | lastLabeled = index }, Cmd.none)
     ValidateXpub ->
       let
+        account = Just
+          { xpub = model.xpub
+          , labels = []
+          }
         saveAndLoad = Cmd.batch
-          [ Storage.set (xpubKey ++ "," ++ model.xpub)
+          [ Store.syncStore account
           , getInfo model.xpub
           ]
       in
         if isXpub model.xpub
           then ({ model | view = Loading }, saveAndLoad)
-          else ({ model }, Cmd.none)
-    FromStorage data ->
-      case setXpub model (extract xpubKey data) of
-        Just m -> (m, getInfo m.xpub)
-        Nothing -> ({ model | status = Asking }, Cmd.none)
+          else (model, Cmd.none)
     Logout ->
-      ({ model | status = Asking }, Storage.remove xpubKey)
+      ({ model | account = Nothing }, Store.clearStore)
     ViewLabels ->
-      ({ model | status = Loading }, Labels.readLabels ())
-    ReadLabels labelsStr ->
-      case decodeLabelsStr labelsStr of
-        Ok labels -> ({ model | status = Labels, labels = labels }, Cmd.none)
-        Err err -> ({ model | status = LoadFailed err }, Cmd.none)
+      ({ model | view = LabelsView }, Cmd.none)
     Home ->
-      ({ model | status = Loaded }, Cmd.none)
+      ({ model | view = HomeView }, Cmd.none)

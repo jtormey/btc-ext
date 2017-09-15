@@ -31,8 +31,8 @@ stdLink : Msg -> String -> Html Msg
 stdLink action str =
   span [ class "std-link", onClick action ] [ text str ]
 
-inputLabelForm : String -> Html Msg
-inputLabelForm label = div [ class "flex-center" ]
+inputLabelForm : String -> String -> Html Msg
+inputLabelForm xpub label = div [ class "flex-center" ]
   [ input [ class "text-input", value label, onInput SetLabel ] []
-  , stdButton Derive (label == "") "Save Label"
+  , stdButton (Derive xpub label) (label == "") "Save Label"
   ]

@@ -20,13 +20,13 @@ askForXpubView xpub =
 statusView : String -> ChildElems
 statusView status = [ div [ class "maintext" ] [ text status ] ]
 
-homeView : Model -> ChildElems
-homeView model =
+homeView : Model -> AccountInfo -> ChildElems
+homeView model account =
   let
     bal = balance model.balance
     qr = qrCode 150 model.address
     addr = div [ class "subtext" ] [ text model.address ]
-    derive = inputLabelForm model.label
+    derive = inputLabelForm account.xpub model.label
   in
     [ div [ class "home-view" ]
       [ qr
@@ -37,8 +37,8 @@ homeView model =
       ]
     ]
 
-labelsView : Model -> ChildElems
-labelsView model =
+labelsView : AccountInfo -> ChildElems
+labelsView account =
   let
     makeLabel entry = div [ class "label-entry" ]
       [ div [] [ text entry.label ]
@@ -46,21 +46,24 @@ labelsView model =
       ]
   in
     [ div [ class "label-view" ] (
-      List.map makeLabel model.labels |> List.reverse
+      List.map makeLabel account.labels
     ) ]
 
 rootView : Model -> Html Msg
 rootView model =
   let
     childElems =
-      case model.status of
-        Asking -> askForXpubView model.xpub
-        Loading -> statusView "Loading..."
-        LoadFailed err -> statusView err
-        Loaded -> homeView model
-        Labels -> labelsView model
+      case model.account of
+        Just account ->
+          case model.view of
+            Loading -> statusView "Loading..."
+            LoadFailed err -> statusView err
+            HomeView -> homeView model account
+            LabelsView -> labelsView account
+        Nothing ->
+          askForXpubView model.xpub
     headerActions =
-      if model.status == Loaded || model.status == Labels
+      if model.view == HomeView || model.view == LabelsView
         then
           [ stdLink Home "Home"
           , stdLink ViewLabels "Labels"

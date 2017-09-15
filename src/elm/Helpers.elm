@@ -1,10 +1,7 @@
 module Helpers exposing (..)
 
-import String exposing (left, split)
-import List exposing (head, drop, length, take)
-import Tuple exposing (first, second)
-import Maybe exposing (withDefault)
-import Json.Decode as Json exposing (map2, float, int, string, list, field)
+import String exposing (left)
+import Json.Decode as Json exposing (float, int, string, list, field)
 import Http
 import Types exposing (..)
 
@@ -28,7 +25,8 @@ multiAddr = (++) "https://blockchain.info/multiaddr?cors=true&active="
 
 xpubDecoder : Json.Decoder XpubInfo
 xpubDecoder =
-  map2 XpubInfo
+  Json.map3 XpubInfo
+    (field "address" string)
     (field "final_balance" float)
     (field "account_index" int)
 
@@ -41,41 +39,3 @@ getInfo xpub =
     getInfoReq = Http.get url decodeUrl
   in
     Http.send XpubResult getInfoReq
-
-wrapStr : String -> Maybe String
-wrapStr s = if s == "" then Nothing else Just s
-
-isEmpty : List a -> Bool
-isEmpty = ((==) 1) << length
-
-isKeyValue : List a -> Maybe (List a)
-isKeyValue xs = if isEmpty xs then Nothing else Just xs
-
-stringToList : String -> Maybe (List String)
-stringToList = isKeyValue << (take 2) << (split ",")
-
-elem : Int -> List a -> Maybe a
-elem i = head << (drop i)
-
-listToTuple : List String -> (String, String)
-listToTuple xs = (withDefault "" (elem 0 xs), withDefault "" (elem 1 xs))
-
-keyValue : String -> Maybe (String, String)
-keyValue s = Maybe.map listToTuple (stringToList s)
-
-extract : String -> String -> Maybe (String)
-extract key data = if (Maybe.map first (keyValue data) == Just key)
-    then Maybe.andThen wrapStr (Maybe.map second (keyValue data))
-    else Nothing
-
-setXpub : Model -> Maybe String -> Maybe Model
-setXpub model xpub = Maybe.map (\x -> { model | xpub = x }) xpub
-
-labelDecoder : Json.Decoder LabelEntry
-labelDecoder =
-  map2 LabelEntry
-    (field "index" int)
-    (field "label" string)
-
-decodeLabelsStr : String -> Result String (List LabelEntry)
-decodeLabelsStr = Json.decodeString (list labelDecoder)

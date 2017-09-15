@@ -1,0 +1,70 @@
+module Storage.Store exposing ( subscribeToStore
+                              , loadStore
+                              , clearStore
+                              , syncStore
+                              )
+
+import List exposing (length, foldl)
+import Json.Decode as Decode exposing (Decoder)
+import Json.Encode as Encode
+import Storage.Ports as Ports
+import Types exposing (..)
+
+-- public
+
+subscribeToStore : ((Result String AccountInfo) -> msg) -> Sub msg
+subscribeToStore typeCons =
+  Sub.map (typeCons << decodeStoreJson) (Ports.receiveStorage Basics.identity)
+
+loadStore : Cmd msg
+loadStore = Ports.fetchStorage ""
+
+clearStore : Cmd msg
+clearStore = Ports.clearStorage ""
+
+syncStore : Maybe AccountInfo -> Cmd msg
+syncStore store = case store of
+  Just s -> Ports.updateStorage (encodeStoreJson s)
+  Nothing -> Cmd.none
+
+-- decoding
+
+decodeStoreJson : String -> Result String AccountInfo
+decodeStoreJson = Decode.decodeString storeDecoder
+
+storeDecoder : Decoder AccountInfo
+storeDecoder =
+  Decode.map2 AccountInfo
+    (Decode.field "xpub" Decode.string)
+    (Decode.field "labels" labelsDecoder)
+
+labelsDecoder : Decoder (List LabelEntry)
+labelsDecoder = Decode.list labelEntryDecoder
+
+labelEntryDecoder : Decoder LabelEntry
+labelEntryDecoder =
+  Decode.map2 LabelEntry
+    (Decode.field "index" Decode.int)
+    (Decode.field "label" Decode.string)
+
+-- encoding
+
+encodeStoreJson : AccountInfo -> String
+encodeStoreJson store = Encode.encode 0 (encodeStore store)
+
+encodeStore : AccountInfo -> Encode.Value
+encodeStore { xpub, labels } =
+  Encode.object
+    [ ("xpub", Encode.string xpub)
+    , ("labels", encodeLabels labels)
+    ]
+
+encodeLabels : (List LabelEntry) -> Encode.Value
+encodeLabels = Encode.list << (List.map encodeLabelEntry)
+
+encodeLabelEntry : LabelEntry -> Encode.Value
+encodeLabelEntry { index, label } =
+  Encode.object
+    [ ("index", Encode.int index)
+    , ("label", Encode.string label)
+    ]

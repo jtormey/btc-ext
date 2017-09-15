@@ -1,4 +1,3 @@
-
 module Types exposing (..)
 
 import Http
@@ -8,16 +7,14 @@ type Msg
   = Xpub String
   | Balance Float
   | XpubResult (Result Http.Error XpubInfo)
-  | Derive
+  | Derive String String
   | Derivation String
   | SetLabel String
-  | LastIndex Int
   | ValidateXpub
-  | FromStorage String
   | Logout
   | Home
   | ViewLabels
-  | ReadLabels String
+  | StoreSub (Result String AccountInfo)
 
 type View
   = Loading
@@ -25,15 +22,8 @@ type View
   | HomeView
   | LabelsView
 
-type Account
-  = Empty
-  | NotEmpty
-    { xpub : String
-    , labels : List LabelEntry
-    }
-
 type alias Model =
-  { account: Account
+  { account: Maybe AccountInfo
   -- state
   , view: View
   , nextIndex: Int
@@ -45,8 +35,14 @@ type alias Model =
   , label: String
   }
 
+type alias AccountInfo =
+  { xpub : String
+  , labels : List LabelEntry
+  }
+
 type alias XpubInfo =
-  { final_balance: Float
+  { address: String
+  , final_balance: Float
   , account_index: Int
   }
 
