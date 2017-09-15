@@ -51,8 +51,6 @@ update msg model =
       ({ model | xpubField = xpub }, Cmd.none)
     SetField (LabelField label) ->
       ({ model | labelField = label }, Cmd.none)
-    Balance balance ->
-      ({ model | balance = balance }, Cmd.none)
     XpubResult (Ok info) ->
       let
         lastLabeled =

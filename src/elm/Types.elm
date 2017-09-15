@@ -4,8 +4,7 @@ import Http
 import Html exposing (..)
 
 type Msg
-  = Balance Float
-  | XpubResult (Result Http.Error XpubInfo)
+  = XpubResult (Result Http.Error XpubInfo)
   | Derive String String
   | Derivation String
   | SetField Field
