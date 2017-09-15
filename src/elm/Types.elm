@@ -4,14 +4,14 @@ import Http
 import Html exposing (..)
 
 type Msg
-  = XpubResult (Result Http.Error XpubInfo)
-  | Derive String String
+  = StoreSub (Result String AccountInfo)
+  | XpubResult (Result Http.Error XpubInfo)
   | Derivation String
   | SetField Field
-  | ValidateXpub
-  | Logout
   | Show View
-  | StoreSub (Result String AccountInfo)
+  | Logout
+  | ValidateXpub
+  | Derive String String
 
 type View
   = Loading

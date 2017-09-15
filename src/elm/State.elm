@@ -38,6 +38,7 @@ subscriptions model = Sub.batch
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case (log "Msg" msg) of
+    -- handle results
     StoreSub (Ok account) ->
       let
         cmd = case model.account of
@@ -45,12 +46,10 @@ update msg model =
           _ -> getInfo account.xpub
       in
         ({ model | account = Just account }, cmd)
+
     StoreSub (Err err) ->
       (model, Cmd.none)
-    SetField (XpubField xpub) ->
-      ({ model | xpubField = xpub }, Cmd.none)
-    SetField (LabelField label) ->
-      ({ model | labelField = label }, Cmd.none)
+
     XpubResult (Ok info) ->
       let
         lastLabeled =
@@ -67,23 +66,27 @@ update msg model =
           }
       in
         (m, Bitcoin.derive (HD.derivationRequest info.address m.nextIndex))
+
     XpubResult (Err err) ->
       ({ model | view = LoadFailed (toString err) }, Cmd.none)
-    Derive xpub label ->
-      let
-        labelEntry =
-          { label = label
-          , index = model.nextIndex - 1 }
-        withLabelEntry store =
-          { store | labels = labelEntry :: store.labels }
-        cmds =
-          [ Store.syncStore (Maybe.map withLabelEntry model.account)
-          , Bitcoin.derive (HD.derivationRequest xpub model.nextIndex)
-          ]
-      in
-        ({ model | labelField = "" }, Cmd.batch cmds)
+
     Derivation address ->
       ({ model | address = address, nextIndex = model.nextIndex + 1 }, Cmd.none)
+
+    -- handle inputs
+    SetField (XpubField xpub) ->
+      ({ model | xpubField = xpub }, Cmd.none)
+
+    SetField (LabelField label) ->
+      ({ model | labelField = label }, Cmd.none)
+
+    -- handle ui events
+    Show view ->
+      ({ model | view = view }, Cmd.none)
+
+    Logout ->
+      ({ model | account = Nothing }, Store.clearStore)
+
     ValidateXpub ->
       let
         account = Just
@@ -98,7 +101,17 @@ update msg model =
         if isXpub model.xpubField
           then ({ model | xpubField = "", view = Loading }, saveAndLoad)
           else (model, Cmd.none)
-    Logout ->
-      ({ model | account = Nothing }, Store.clearStore)
-    Show view ->
-      ({ model | view = view }, Cmd.none)
+
+    Derive xpub label ->
+      let
+        labelEntry =
+          { label = label
+          , index = model.nextIndex - 1 }
+        withLabelEntry store =
+          { store | labels = labelEntry :: store.labels }
+        cmds =
+          [ Store.syncStore (Maybe.map withLabelEntry model.account)
+          , Bitcoin.derive (HD.derivationRequest xpub model.nextIndex)
+          ]
+      in
+        ({ model | labelField = "" }, Cmd.batch cmds)
