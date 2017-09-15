@@ -16,7 +16,6 @@ model =
   { account = Nothing
   , view = Loading
   , nextIndex = 0
-  , lastLabeled = 0
   , balance = 0
   , address = ""
   , xpub = ""
@@ -44,15 +43,8 @@ update msg model =
         cmd = case model.account of
           Just { xpub } as account -> Cmd.none
           _ -> getInfo account.xpub
-        getLastLabeled = (List.map (\x -> x.index)) >> (List.foldl Basics.max 0)
       in
-        (
-          { model
-          | account = Just account
-          , lastLabeled = getLastLabeled account.labels
-          }
-        , cmd
-        )
+        ({ model | account = Just account }, cmd)
     StoreSub (Err err) ->
       (model, Cmd.none)
     Xpub xpub ->
@@ -61,10 +53,16 @@ update msg model =
       ({ model | balance = balance }, Cmd.none)
     XpubResult (Ok info) ->
       let
+        lastLabeled =
+          model.account
+          |> Maybe.map (\a -> a.labels
+            |> List.map (\x -> x.index)
+            |> List.foldl Basics.max 0)
+          |> Maybe.withDefault 0
         m =
           { model
           | balance = info.final_balance
-          , nextIndex = (Basics.max info.account_index (model.lastLabeled + 1))
+          , nextIndex = Basics.max info.account_index (lastLabeled + 1)
           , view = if model.view == Loading then HomeView else model.view
           }
       in

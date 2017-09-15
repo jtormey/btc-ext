@@ -23,13 +23,10 @@ type View
 
 type alias Model =
   { account: Maybe AccountInfo
-  -- state
   , view: View
   , nextIndex: Int
-  , lastLabeled: Int
   , balance: Float
   , address: String
-  -- fields
   , xpub: String
   , label: String
   }
