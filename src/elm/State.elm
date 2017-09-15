@@ -40,6 +40,9 @@ update msg model =
   case msg of
     StoreSub (Ok account) ->
       let
+        cmd = case model.account of
+          Just { xpub } as account -> Cmd.none
+          _ -> getInfo account.xpub
         getLastLabeled = (List.map (\x -> x.index)) >> (List.foldl Basics.max 0)
       in
         (
@@ -47,7 +50,7 @@ update msg model =
           | account = Just account
           , lastLabeled = getLastLabeled account.labels
           }
-        , getInfo account.xpub
+        , cmd
         )
     StoreSub (Err err) ->
       (model, Cmd.none)
