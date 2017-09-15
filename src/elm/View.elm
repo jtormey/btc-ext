@@ -2,10 +2,44 @@ module View exposing (rootView)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onInput)
+import Html.Events exposing (onInput, onClick)
 import Types exposing (..)
-import Components exposing (..)
-import Helpers exposing (isXpub)
+import Helpers exposing (isXpub, showBalance, makeQr)
+
+-- components
+
+extHeader : ChildElems -> Html Msg
+extHeader actions = div [ class "header" ]
+  [ span [ class "header-brand" ] [ text "BTC EXT" ]
+  , div [ class "header-actions" ] actions
+  ]
+
+balance : Float -> Html Msg
+balance satoshi =
+  let
+    bal = if satoshi == 0 then "No Balance" else showBalance satoshi
+  in
+    div [ class "maintext" ] [ text bal ]
+
+qrCode : Int -> String -> Html Msg
+qrCode qrSize address =
+  img [ src (makeQr address), width qrSize, height qrSize ] []
+
+stdButton : Msg -> Bool -> String -> Html Msg
+stdButton action isDisabled str =
+  button [ class "std-button", onClick action, disabled isDisabled ] [ text str ]
+
+stdLink : Msg -> String -> Html Msg
+stdLink action str =
+  span [ class "std-link", onClick action ] [ text str ]
+
+inputLabelForm : String -> String -> Html Msg
+inputLabelForm xpub label = div [ class "flex-center" ]
+  [ input [ class "text-input", value label, onInput (SetField << LabelField) ] []
+  , stdButton (SubmitLabel xpub label) (label == "") "Save Label"
+  ]
+
+-- views
 
 askForXpubView : String -> ChildElems
 askForXpubView xpub =
