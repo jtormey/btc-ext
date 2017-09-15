@@ -63,7 +63,7 @@ rootView model =
         Nothing ->
           askForXpubView model.xpub
     headerActions =
-      if model.view == HomeView || model.view == LabelsView
+      if model.account /= Nothing && (model.view == HomeView || model.view == LabelsView)
         then
           [ stdLink Home "Home"
           , stdLink ViewLabels "Labels"

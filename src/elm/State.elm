@@ -90,7 +90,7 @@ update msg model =
           ]
       in
         if isXpub model.xpub
-          then ({ model | view = Loading }, saveAndLoad)
+          then ({ model | xpub = "", view = Loading }, saveAndLoad)
           else (model, Cmd.none)
     Logout ->
       ({ model | account = Nothing }, Store.clearStore)
