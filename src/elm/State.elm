@@ -18,8 +18,8 @@ model =
   , nextIndex = 0
   , balance = 0
   , address = ""
-  , xpub = ""
-  , label = ""
+  , xpubField = ""
+  , labelField = ""
   }
 
 initialState : (Model, Cmd Msg)
@@ -47,8 +47,10 @@ update msg model =
         ({ model | account = Just account }, cmd)
     StoreSub (Err err) ->
       (model, Cmd.none)
-    Xpub xpub ->
-      ({ model | xpub = xpub }, Cmd.none)
+    SetField (XpubField xpub) ->
+      ({ model | xpubField = xpub }, Cmd.none)
+    SetField (LabelField label) ->
+      ({ model | labelField = label }, Cmd.none)
     Balance balance ->
       ({ model | balance = balance }, Cmd.none)
     XpubResult (Ok info) ->
@@ -81,24 +83,22 @@ update msg model =
           , Bitcoin.derive (HD.derivationRequest xpub model.nextIndex)
           ]
       in
-        ({ model | label = "" }, Cmd.batch cmds)
+        ({ model | labelField = "" }, Cmd.batch cmds)
     Derivation address ->
       ({ model | address = address, nextIndex = model.nextIndex + 1 }, Cmd.none)
-    SetLabel label ->
-      ({ model | label = label }, Cmd.none)
     ValidateXpub ->
       let
         account = Just
-          { xpub = model.xpub
+          { xpub = model.xpubField
           , labels = []
           }
         saveAndLoad = Cmd.batch
           [ Store.syncStore account
-          , getInfo model.xpub
+          , getInfo model.xpubField
           ]
       in
-        if isXpub model.xpub
-          then ({ model | xpub = "", view = Loading }, saveAndLoad)
+        if isXpub model.xpubField
+          then ({ model | xpubField = "", view = Loading }, saveAndLoad)
           else (model, Cmd.none)
     Logout ->
       ({ model | account = Nothing }, Store.clearStore)

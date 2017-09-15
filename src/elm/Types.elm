@@ -4,12 +4,11 @@ import Http
 import Html exposing (..)
 
 type Msg
-  = Xpub String
-  | Balance Float
+  = Balance Float
   | XpubResult (Result Http.Error XpubInfo)
   | Derive String String
   | Derivation String
-  | SetLabel String
+  | SetField Field
   | ValidateXpub
   | Logout
   | Show View
@@ -21,14 +20,18 @@ type View
   | HomeView
   | LabelsView
 
+type Field
+  = XpubField String
+  | LabelField String
+
 type alias Model =
   { account: Maybe AccountInfo
   , view: View
   , nextIndex: Int
   , balance: Float
   , address: String
-  , xpub: String
-  , label: String
+  , xpubField: String
+  , labelField: String
   }
 
 type alias AccountInfo =

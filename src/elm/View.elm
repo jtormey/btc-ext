@@ -11,7 +11,7 @@ askForXpubView xpub =
   [ div [ class "login-view" ]
     [ div [ class "maintext mbl" ] [ text "Enter an xpub to get started" ]
     , div [ class "w100 flex-center" ]
-      [ input [ class "text-input", value xpub, onInput Xpub ] []
+      [ input [ class "text-input", value xpub, onInput (SetField << XpubField) ] []
       , stdButton ValidateXpub False "Continue"
       ]
     ]
@@ -26,7 +26,7 @@ homeView model account =
     bal = balance model.balance
     qr = qrCode 150 model.address
     addr = div [ class "subtext" ] [ text model.address ]
-    derive = inputLabelForm account.xpub model.label
+    derive = inputLabelForm account.xpub model.labelField
   in
     [ div [ class "home-view" ]
       [ qr
@@ -65,7 +65,7 @@ rootView model =
             HomeView -> homeView model account
             LabelsView -> labelsView account
         Nothing ->
-          askForXpubView model.xpub
+          askForXpubView model.xpubField
     headerActions =
       if model.account /= Nothing && (model.view == HomeView || model.view == LabelsView)
         then
