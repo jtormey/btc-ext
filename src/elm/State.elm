@@ -1,5 +1,6 @@
 module State exposing (initialState, subscriptions, update)
 
+import Debug exposing (log)
 import Helpers exposing (..)
 import Bitcoin.Ports as Bitcoin
 import Bitcoin.HD as HD
@@ -37,7 +38,7 @@ subscriptions model = Sub.batch
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  case msg of
+  case (log "Msg" msg) of
     StoreSub (Ok account) ->
       let
         cmd = case model.account of
