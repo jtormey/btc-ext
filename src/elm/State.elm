@@ -94,7 +94,5 @@ update msg model =
           else (model, Cmd.none)
     Logout ->
       ({ model | account = Nothing }, Store.clearStore)
-    ViewLabels ->
-      ({ model | view = LabelsView }, Cmd.none)
-    Home ->
-      ({ model | view = HomeView }, Cmd.none)
+    Show view ->
+      ({ model | view = view }, Cmd.none)

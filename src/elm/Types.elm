@@ -12,8 +12,7 @@ type Msg
   | SetLabel String
   | ValidateXpub
   | Logout
-  | Home
-  | ViewLabels
+  | Show View
   | StoreSub (Result String AccountInfo)
 
 type View
