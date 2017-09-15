@@ -10,8 +10,8 @@ type Msg
   | SetField Field
   | Show View
   | Logout
-  | ValidateXpub
-  | Derive String String
+  | SubmitXpub
+  | SubmitLabel String String
 
 type View
   = Loading

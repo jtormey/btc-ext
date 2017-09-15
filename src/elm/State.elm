@@ -87,7 +87,7 @@ update msg model =
     Logout ->
       ({ model | account = Nothing }, Store.clearStore)
 
-    ValidateXpub ->
+    SubmitXpub ->
       let
         account = Just
           { xpub = model.xpubField
@@ -102,7 +102,7 @@ update msg model =
           then ({ model | xpubField = "", view = Loading }, saveAndLoad)
           else (model, Cmd.none)
 
-    Derive xpub label ->
+    SubmitLabel xpub label ->
       let
         labelEntry =
           { label = label

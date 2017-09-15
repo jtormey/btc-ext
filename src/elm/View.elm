@@ -12,7 +12,7 @@ askForXpubView xpub =
     [ div [ class "maintext mbl" ] [ text "Enter an xpub to get started" ]
     , div [ class "w100 flex-center" ]
       [ input [ class "text-input", value xpub, onInput (SetField << XpubField) ] []
-      , stdButton ValidateXpub False "Continue"
+      , stdButton SubmitXpub False "Continue"
       ]
     ]
   ]

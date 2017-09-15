@@ -34,5 +34,5 @@ stdLink action str =
 inputLabelForm : String -> String -> Html Msg
 inputLabelForm xpub label = div [ class "flex-center" ]
   [ input [ class "text-input", value label, onInput (SetField << LabelField) ] []
-  , stdButton (Derive xpub label) (label == "") "Save Label"
+  , stdButton (SubmitLabel xpub label) (label == "") "Save Label"
   ]
