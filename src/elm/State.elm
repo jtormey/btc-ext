@@ -68,10 +68,16 @@ update msg model =
     XpubResult (Err err) ->
       ({ model | view = LoadFailed (toString err) }, Cmd.none)
     Derive xpub label ->
-      let cmds =
-        [ Store.syncStore (Maybe.map (\x -> { x | labels = { label = label, index = model.nextIndex - 1 } :: x.labels }) model.account)
-        , Bitcoin.derive (HD.derivationRequest xpub model.nextIndex)
-        ]
+      let
+        labelEntry =
+          { label = label
+          , index = model.nextIndex - 1 }
+        withLabelEntry store =
+          { store | labels = labelEntry :: store.labels }
+        cmds =
+          [ Store.syncStore (Maybe.map withLabelEntry model.account)
+          , Bitcoin.derive (HD.derivationRequest xpub model.nextIndex)
+          ]
       in
         ({ model | label = "" }, Cmd.batch cmds)
     Derivation address ->
