@@ -7,8 +7,6 @@ import Bitcoin.HD as HD
 import Storage.Store as Store
 import Types exposing (..)
 
-xpubKey = "@btc-ext:xpub"
-
 -- model
 
 model : Model
