@@ -98,9 +98,7 @@ update msg model =
           , getInfo model.xpubField
           ]
       in
-        if isXpub model.xpubField
-          then ({ model | xpubField = "", view = Loading }, saveAndLoad)
-          else (model, Cmd.none)
+        ({ model | xpubField = "", view = Loading }, saveAndLoad)
 
     SubmitLabel xpub label ->
       let

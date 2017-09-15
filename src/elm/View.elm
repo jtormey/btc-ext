@@ -5,6 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onInput)
 import Types exposing (..)
 import Components exposing (..)
+import Helpers exposing (isXpub)
 
 askForXpubView : String -> ChildElems
 askForXpubView xpub =
@@ -12,7 +13,7 @@ askForXpubView xpub =
     [ div [ class "maintext mbl" ] [ text "Enter an xpub to get started" ]
     , div [ class "w100 flex-center" ]
       [ input [ class "text-input", value xpub, onInput (SetField << XpubField) ] []
-      , stdButton SubmitXpub False "Continue"
+      , stdButton SubmitXpub (not <| isXpub xpub) "Continue"
       ]
     ]
   ]
