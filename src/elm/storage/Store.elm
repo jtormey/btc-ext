@@ -50,7 +50,7 @@ labelEntryDecoder =
 -- encoding
 
 encodeStoreJson : AccountInfo -> String
-encodeStoreJson store = Encode.encode 0 (encodeStore store)
+encodeStoreJson = (Encode.encode 0) << encodeStore
 
 encodeStore : AccountInfo -> Encode.Value
 encodeStore { xpub, labels } =
