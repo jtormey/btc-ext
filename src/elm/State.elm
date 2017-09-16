@@ -2,9 +2,8 @@ module State exposing (initialState, subscriptions, update)
 
 import Debug exposing (log)
 import Helpers exposing (..)
-import Bitcoin.Ports as Bitcoin
-import Bitcoin.HD as HD
 import Storage.Store as Store
+import Bitcoin.HD as Bitcoin
 import Types exposing (..)
 
 -- model
@@ -27,8 +26,8 @@ initialState = (model, Store.loadStore)
 
 subscriptions : Model -> Sub Msg
 subscriptions model = Sub.batch
-  [ Bitcoin.derivation Derivation
-  , Store.subscribeToStore StoreSub
+  [ Store.subscribeToStore StoreSub
+  , Bitcoin.subscribeToDerivation DerivationSub
   ]
 
 -- update
@@ -48,6 +47,9 @@ update msg model =
     StoreSub (Err err) ->
       (model, Cmd.none)
 
+    DerivationSub address ->
+      ({ model | address = address, nextIndex = model.nextIndex + 1 }, Cmd.none)
+
     XpubResult (Ok info) ->
       let
         lastLabeled =
@@ -63,13 +65,10 @@ update msg model =
           , view = if model.view == Loading then HomeView else model.view
           }
       in
-        (m, Bitcoin.derive (HD.derivationRequest info.address m.nextIndex))
+        (m, Bitcoin.deriveAddress info.address m.nextIndex)
 
     XpubResult (Err err) ->
       ({ model | view = LoadFailed (toString err) }, Cmd.none)
-
-    Derivation address ->
-      ({ model | address = address, nextIndex = model.nextIndex + 1 }, Cmd.none)
 
     -- handle inputs
     SetField (XpubField xpub) ->
@@ -107,7 +106,7 @@ update msg model =
           { store | labels = labelEntry :: store.labels }
         cmds =
           [ Store.syncStore (Maybe.map withLabelEntry model.account)
-          , Bitcoin.derive (HD.derivationRequest xpub model.nextIndex)
+          , Bitcoin.deriveAddress xpub model.nextIndex
           ]
       in
         ({ model | labelField = "" }, Cmd.batch cmds)

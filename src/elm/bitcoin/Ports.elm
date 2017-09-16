@@ -1,6 +1,9 @@
 port module Bitcoin.Ports exposing (..)
 
-import Bitcoin.HD exposing (DerivationRequest)
+type alias DerivationRequest =
+  { xpub: String
+  , index: Int
+  }
 
 port derive : DerivationRequest -> (Cmd msg)
 port derivation : (String -> msg) -> Sub msg

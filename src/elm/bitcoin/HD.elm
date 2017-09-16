@@ -1,10 +1,11 @@
-module Bitcoin.HD exposing (DerivationRequest, derivationRequest)
+module Bitcoin.HD exposing (subscribeToDerivation, deriveAddress)
 
-type alias DerivationRequest =
-  { xpub: String
-  , index: Int
-  }
+import Bitcoin.Ports as Ports
 
-derivationRequest : String -> Int -> DerivationRequest
-derivationRequest xpub index =
-  { xpub = xpub, index = index }
+subscribeToDerivation : (String -> msg) -> Sub msg
+subscribeToDerivation =
+  Ports.derivation
+
+deriveAddress : String -> Int -> Cmd msg
+deriveAddress xpub index =
+  Ports.derive { xpub = xpub, index = index }

@@ -5,8 +5,8 @@ import Html exposing (..)
 
 type Msg
   = StoreSub (Result String AccountInfo)
+  | DerivationSub String
   | XpubResult (Result Http.Error XpubInfo)
-  | Derivation String
   | SetField Field
   | Show View
   | Logout
