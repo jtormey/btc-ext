@@ -13,7 +13,7 @@ model : Model
 model =
   { account = Nothing
   , view = Loading
-  , nextIndex = 0
+  , index = 0
   , derivations = Dict.empty
   , balance = 0
   , xpubField = ""
@@ -52,7 +52,6 @@ update msg model =
       (
         { model
         | derivations = Dict.insert info.index info.address model.derivations
-        , nextIndex = model.nextIndex + 1
         }
       , Cmd.none
       )
@@ -71,11 +70,11 @@ update msg model =
         m =
           { model
           | balance = info.final_balance
-          , nextIndex = Basics.max info.account_index (lastLabeled + 1)
+          , index = Basics.max info.account_index (lastLabeled + 1)
           , view = if model.view == Loading then HomeView else model.view
           }
       in
-        (m, Bitcoin.deriveAddress info.address m.nextIndex)
+        (m, Bitcoin.deriveAddress info.address m.index)
 
     XpubResult (Err err) ->
       ({ model | view = LoadFailed (toString err) }, Cmd.none)
@@ -94,29 +93,32 @@ update msg model =
     Logout ->
       ({ model | account = Nothing }, Store.clearStore)
 
+    Derive xpub index ->
+      (model, Bitcoin.deriveAddress xpub index)
+
     SubmitXpub ->
       let
         account = Just
           { xpub = model.xpubField
           , labels = []
           }
-        saveAndLoad = Cmd.batch
-          [ Store.syncStore account
-          , getInfo model.xpubField
-          ]
+        syncAccount =
+          Store.syncStore account
       in
-        ({ model | xpubField = "", view = Loading }, saveAndLoad)
+        ({ model | xpubField = "", view = Loading }, syncAccount)
 
     SubmitLabel xpub label ->
       let
+        nextIndex =
+          model.index + 1
         labelEntry =
           { label = label
-          , index = model.nextIndex - 1 }
+          , index = model.index }
         withLabelEntry store =
           { store | labels = labelEntry :: store.labels }
         cmds =
           [ Store.syncStore (Maybe.map withLabelEntry model.account)
-          , Bitcoin.deriveAddress xpub model.nextIndex
+          , Bitcoin.deriveAddress xpub nextIndex
           ]
       in
-        ({ model | labelField = "" }, Cmd.batch cmds)
+        ({ model | labelField = "", index = nextIndex }, Cmd.batch cmds)

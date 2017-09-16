@@ -59,7 +59,7 @@ statusView status = [ div [ class "maintext" ] [ text status ] ]
 homeView : Model -> AccountInfo -> ChildElems
 homeView model account =
   let
-    address = (Maybe.withDefault "" <| Dict.get (model.nextIndex - 1) model.derivations)
+    address = Maybe.withDefault "" <| Dict.get model.index model.derivations
     bal = balance model.balance
     qr = qrCode 150 address
     addr = div [ class "subtext" ] [ text address ]
@@ -74,12 +74,18 @@ homeView model account =
       ]
     ]
 
-labelsView : AccountInfo -> ChildElems
-labelsView account =
+labelsView : Model -> AccountInfo -> ChildElems
+labelsView model account =
   let
+    getText index =
+      Dict.get index model.derivations
+      |> Maybe.withDefault (toString index)
+    getAttrs index = if Dict.member index model.derivations
+      then [ ]
+      else [ class "link", onClick (Derive account.xpub index) ]
     makeLabel entry = div [ class "label-entry" ]
       [ div [] [ text entry.label ]
-      , div [] [ text ("index: " ++ (toString entry.index)) ]
+      , a (getAttrs entry.index) [ text (getText entry.index) ]
       ]
   in
     if List.isEmpty account.labels
@@ -100,7 +106,7 @@ rootView model =
             Loading -> statusView "Loading..."
             LoadFailed err -> statusView err
             HomeView -> homeView model account
-            LabelsView -> labelsView account
+            LabelsView -> labelsView model account
         Nothing ->
           askForXpubView model.xpubField
     headerActions =

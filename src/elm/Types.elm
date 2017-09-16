@@ -11,6 +11,7 @@ type Msg
   | SetField Field
   | Show View
   | Logout
+  | Derive String Int
   | SubmitXpub
   | SubmitLabel String String
 
@@ -27,7 +28,7 @@ type Field
 type alias Model =
   { account: Maybe AccountInfo
   , view: View
-  , nextIndex: Int
+  , index: Int
   , balance: Float
   , derivations: Dict Int String
   , xpubField: String
