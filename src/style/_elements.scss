@@ -18,6 +18,9 @@
 
 .std-link {
   cursor: pointer;
+  &.selected {
+    border-bottom: 1px solid white;
+  }
 }
 
 .maintext {

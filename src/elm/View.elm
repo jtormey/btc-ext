@@ -30,9 +30,12 @@ stdButton : Msg -> Bool -> String -> Html Msg
 stdButton action isDisabled str =
   button [ class "std-button", onClick action, disabled isDisabled ] [ text str ]
 
-stdLink : Msg -> String -> Html Msg
-stdLink action str =
-  span [ class "std-link", onClick action ] [ text str ]
+stdLink : Msg -> Bool -> String -> Html Msg
+stdLink action selected str =
+  let
+    className = if selected then "std-link selected" else "std-link"
+  in
+    span [ class className, onClick action ] [ text str ]
 
 inputLabelForm : String -> String -> Html Msg
 inputLabelForm xpub label = div [ class "flex-center" ]
@@ -116,9 +119,9 @@ rootView model =
     headerActions =
       if model.account /= Nothing && model.view /= Loading
         then
-          [ stdLink (Show HomeView) "Home"
-          , stdLink (Show LabelsView) "Labels"
-          , stdLink (Show SettingsView) "Settings"
+          [ stdLink (Show HomeView) (model.view == HomeView) "Home"
+          , stdLink (Show LabelsView) (model.view == LabelsView) "Labels"
+          , stdLink (Show SettingsView) (model.view == SettingsView) "Settings"
           ]
         else
           []
