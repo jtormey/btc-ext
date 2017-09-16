@@ -5,6 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onInput, onClick)
 import Types exposing (..)
 import Helpers exposing (isXpub, showBalance, makeQr)
+import Dict
 
 -- components
 
@@ -58,9 +59,10 @@ statusView status = [ div [ class "maintext" ] [ text status ] ]
 homeView : Model -> AccountInfo -> ChildElems
 homeView model account =
   let
+    address = (Maybe.withDefault "" <| Dict.get (model.nextIndex - 1) model.derivations)
     bal = balance model.balance
-    qr = qrCode 150 model.address
-    addr = div [ class "subtext" ] [ text model.address ]
+    qr = qrCode 150 address
+    addr = div [ class "subtext" ] [ text address ]
     derive = inputLabelForm account.xpub model.labelField
   in
     [ div [ class "home-view" ]

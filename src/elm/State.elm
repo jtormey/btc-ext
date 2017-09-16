@@ -5,6 +5,7 @@ import Helpers exposing (..)
 import Storage.Store as Store
 import Bitcoin.HD as Bitcoin
 import Types exposing (..)
+import Dict
 
 -- model
 
@@ -13,8 +14,8 @@ model =
   { account = Nothing
   , view = Loading
   , nextIndex = 0
+  , derivations = Dict.empty
   , balance = 0
-  , address = ""
   , xpubField = ""
   , labelField = ""
   }
@@ -47,8 +48,17 @@ update msg model =
     StoreSub (Err err) ->
       (model, Cmd.none)
 
-    DerivationSub address ->
-      ({ model | address = address, nextIndex = model.nextIndex + 1 }, Cmd.none)
+    DerivationSub (Ok info) ->
+      (
+        { model
+        | derivations = Dict.insert info.index info.address model.derivations
+        , nextIndex = model.nextIndex + 1
+        }
+      , Cmd.none
+      )
+
+    DerivationSub (Err _) ->
+      (model, Cmd.none)
 
     XpubResult (Ok info) ->
       let

@@ -7,6 +7,6 @@ let deriveFromXpub = (xpub, index) => (
 export const setupPorts = (ports) => {
   ports.derive.subscribe(({ xpub, index }) => {
     let address = deriveFromXpub(xpub, index)
-    ports.derivation.send(address)
+    ports.derivation.send(JSON.stringify({ index, address }))
   })
 }

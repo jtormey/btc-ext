@@ -2,10 +2,11 @@ module Types exposing (..)
 
 import Http
 import Html exposing (..)
+import Dict exposing (Dict)
 
 type Msg
   = StoreSub (Result String AccountInfo)
-  | DerivationSub String
+  | DerivationSub (Result String AddressInfo)
   | XpubResult (Result Http.Error XpubInfo)
   | SetField Field
   | Show View
@@ -28,7 +29,7 @@ type alias Model =
   , view: View
   , nextIndex: Int
   , balance: Float
-  , address: String
+  , derivations: Dict Int String
   , xpubField: String
   , labelField: String
   }
@@ -47,6 +48,11 @@ type alias XpubInfo =
 type alias LabelEntry =
   { index: Int
   , label: String
+  }
+
+type alias AddressInfo =
+  { index : Int
+  , address : String
   }
 
 type alias ChildElems = List (Html Msg)
