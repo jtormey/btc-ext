@@ -14,7 +14,7 @@ import Types exposing (..)
 
 subscribeToStore : ((Result String AccountInfo) -> msg) -> Sub msg
 subscribeToStore typeCons =
-  Sub.map (typeCons << decodeStoreJson) (Ports.receiveStorage Basics.identity)
+  Ports.receiveStorage (typeCons << decodeStoreJson)
 
 loadStore : Cmd msg
 loadStore = Ports.fetchStorage ""
