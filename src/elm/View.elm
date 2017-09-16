@@ -77,7 +77,7 @@ labelsView model account =
   let
     getText index =
       Dict.get index model.derivations
-      |> Maybe.withDefault (toString index)
+      |> Maybe.withDefault (toString index |> (++) "#")
     getAttrs index = if Dict.member index model.derivations
       then [ ]
       else [ class "link", onClick (Derive account.xpub index) ]
