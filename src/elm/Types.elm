@@ -55,5 +55,3 @@ type alias AddressInfo =
   { index : Int
   , address : String
   }
-
-type alias ChildElems = List (Html Msg)

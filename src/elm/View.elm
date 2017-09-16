@@ -9,7 +9,7 @@ import Dict
 
 -- components
 
-extHeader : ChildElems -> Html Msg
+extHeader : List (Html Msg) -> Html Msg
 extHeader actions = div [ class "header" ]
   [ span [ class "header-brand" ] [ text "BTC EXT" ]
   , div [ class "header-actions" ] actions
@@ -42,21 +42,20 @@ inputLabelForm xpub label = div [ class "flex-center" ]
 
 -- views
 
-askForXpubView : String -> ChildElems
+askForXpubView : String -> Html Msg
 askForXpubView xpub =
-  [ div [ class "login-view" ]
+  div [ class "login-view" ]
     [ div [ class "maintext mbl" ] [ text "Enter an xpub to get started" ]
     , div [ class "w100 flex-center" ]
       [ input [ class "text-input", value xpub, onInput (SetField << XpubField) ] []
       , stdButton SubmitXpub (not <| isXpub xpub) "Continue"
       ]
     ]
-  ]
 
-statusView : String -> ChildElems
-statusView status = [ div [ class "maintext" ] [ text status ] ]
+statusView : String -> Html Msg
+statusView status = div [ class "maintext" ] [ text status ]
 
-homeView : Model -> AccountInfo -> ChildElems
+homeView : Model -> AccountInfo -> Html Msg
 homeView model account =
   let
     address = Maybe.withDefault "" <| Dict.get model.index model.derivations
@@ -65,16 +64,15 @@ homeView model account =
     addr = div [ class "subtext" ] [ text address ]
     derive = inputLabelForm account.xpub model.labelField
   in
-    [ div [ class "home-view" ]
+    div [ class "home-view" ]
       [ qr
       , div [ class "home-info" ]
         [ div [ ] [ bal, addr ]
         , derive
         ]
       ]
-    ]
 
-labelsView : Model -> AccountInfo -> ChildElems
+labelsView : Model -> AccountInfo -> Html Msg
 labelsView model account =
   let
     getText index =
@@ -89,17 +87,13 @@ labelsView model account =
       ]
   in
     if List.isEmpty account.labels
-      then
-        statusView "No Labels"
-      else
-        [ div [ class "label-view" ] (
-          List.map makeLabel account.labels
-        ) ]
+      then statusView "No Labels"
+      else div [ class "label-view" ] (List.map makeLabel account.labels)
 
 rootView : Model -> Html Msg
 rootView model =
   let
-    childElems =
+    view =
       case model.account of
         Just account ->
           case model.view of
@@ -120,5 +114,5 @@ rootView model =
           []
   in div [ class "container" ]
     [ extHeader headerActions
-    , div [ class "body" ] childElems
+    , div [ class "body" ] [ view ]
     ]
