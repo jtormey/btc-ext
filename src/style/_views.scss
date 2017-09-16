@@ -32,3 +32,20 @@
     border-bottom: 1px solid #ddd;
   }
 }
+
+.settings-view {
+  flex: 1;
+  height: $height - 48px;
+  display: flex;
+  flex-direction: column;
+
+  .setting {
+    display: flex;
+    align-items: center;
+    margin: 16px 0px;
+
+    button {
+      margin-right: 16px;
+    }
+  }
+}

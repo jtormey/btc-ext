@@ -90,6 +90,15 @@ labelsView model account =
       then statusView "No Labels"
       else div [ class "label-view" ] (List.map makeLabel account.labels)
 
+settingsView : Html Msg
+settingsView =
+  div [ class "settings-view" ]
+    [ div [ class "setting" ]
+      [ stdButton Logout False "Clear Local Cache"
+      , text "Delete xpub and address label information."
+      ]
+    ]
+
 rootView : Model -> Html Msg
 rootView model =
   let
@@ -101,14 +110,15 @@ rootView model =
             LoadFailed err -> statusView err
             HomeView -> homeView model account
             LabelsView -> labelsView model account
+            SettingsView -> settingsView
         Nothing ->
           askForXpubView model.xpubField
     headerActions =
-      if model.account /= Nothing && (model.view == HomeView || model.view == LabelsView)
+      if model.account /= Nothing && model.view /= Loading
         then
           [ stdLink (Show HomeView) "Home"
           , stdLink (Show LabelsView) "Labels"
-          , stdLink Logout "Logout"
+          , stdLink (Show SettingsView) "Settings"
           ]
         else
           []

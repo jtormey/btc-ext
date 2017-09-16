@@ -20,6 +20,7 @@ type View
   | LoadFailed String
   | HomeView
   | LabelsView
+  | SettingsView
 
 type Field
   = XpubField String
