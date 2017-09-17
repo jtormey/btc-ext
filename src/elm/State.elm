@@ -122,3 +122,12 @@ update msg model =
           ]
       in
         ({ model | labelField = "", index = nextIndex }, Cmd.batch cmds)
+
+    DeleteLabel index ->
+      let
+        removeLabel account =
+          { account | labels = List.filter (\l -> l.index /= index) account.labels }
+      in
+        ( model
+        , Store.syncStore (Maybe.map removeLabel model.account)
+        )

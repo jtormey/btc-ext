@@ -35,4 +35,8 @@
 .link {
   color: #0091EA;
   cursor: pointer;
+  margin-left: 16px;
+  &.red {
+    color: #EF5350;
+  }
 }

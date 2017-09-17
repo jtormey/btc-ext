@@ -86,7 +86,10 @@ labelsView model account =
       else [ class "link", onClick (Derive account.xpub index) ]
     makeLabel entry = div [ class "label-entry" ]
       [ div [] [ text entry.label ]
-      , a (getAttrs entry.index) [ text (getText entry.index) ]
+      , div []
+        [ a (getAttrs entry.index) [ text (getText entry.index) ]
+        , a [ class "link red", onClick (DeleteLabel entry.index) ] [ text "Delete" ]
+        ]
       ]
   in
     if List.isEmpty account.labels

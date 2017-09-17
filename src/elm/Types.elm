@@ -14,6 +14,7 @@ type Msg
   | Derive String Int
   | SubmitXpub
   | SubmitLabel String String
+  | DeleteLabel Int
 
 type View
   = Loading
