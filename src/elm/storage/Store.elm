@@ -23,9 +23,8 @@ clearStore : Cmd msg
 clearStore = Ports.clearStorage ""
 
 syncStore : Maybe AccountInfo -> Cmd msg
-syncStore store = case store of
-  Just s -> Ports.updateStorage (encodeStoreJson s)
-  Nothing -> Cmd.none
+syncStore = Maybe.map (Ports.updateStorage << encodeStoreJson)
+  >> Maybe.withDefault Cmd.none
 
 -- decoding
 
