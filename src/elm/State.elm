@@ -127,7 +127,12 @@ update msg model =
       let
         removeLabel account =
           { account | labels = List.filter (\l -> l.index /= index) account.labels }
+        sync =
+          Store.syncStore (Maybe.map removeLabel model.account)
+        info = model.account
+          |> Maybe.map (\a -> getInfo a.xpub)
+          |> Maybe.withDefault Cmd.none
+        cmds =
+          sync :: (if model.index == index + 1 then [info] else [])
       in
-        ( model
-        , Store.syncStore (Maybe.map removeLabel model.account)
-        )
+        (model, Cmd.batch cmds)
