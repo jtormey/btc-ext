@@ -6,6 +6,7 @@
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack",
+    "package": "sh extpackage.sh",
     "postinstall": "echo \"Y\" | elm-package install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

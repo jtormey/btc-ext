@@ -1,6 +1,7 @@
 node_modules/
 elm-stuff/
 build/
+dist/
 design/
 npm-debug.log
 .env
