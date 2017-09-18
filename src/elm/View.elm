@@ -120,12 +120,14 @@ rootView model =
             SettingsView -> settingsView
         Nothing ->
           askForXpubView model.xpubField
+    viewLink view title =
+      stdLink (Show view) (model.view == view) title
     headerActions =
       if model.account /= Nothing && model.view /= Loading
         then
-          [ stdLink (Show HomeView) (model.view == HomeView) "Home"
-          , stdLink (Show LabelsView) (model.view == LabelsView) "Labels"
-          , stdLink (Show SettingsView) (model.view == SettingsView) "Settings"
+          [ viewLink HomeView "Home"
+          , viewLink LabelsView "Labels"
+          , viewLink SettingsView "Settings"
           ]
         else
           []
