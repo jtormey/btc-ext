@@ -5,7 +5,13 @@
   "version_name": "dev-alpha",
   "description": "Chrome extension for convenient xpub access",
   "author": "Justin Tormey <jrtormey@gmail.com>",
-  "icons": {},
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "64": "icon64.png",
+    "128": "icon128.png",
+    "256": "icon256.png"
+  },
   "permissions": [],
   "browser_action": {
     "default_title": "BTC EXT",
