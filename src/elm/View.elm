@@ -81,9 +81,10 @@ labelsView model account =
     getText index =
       Dict.get index model.derivations
       |> Maybe.withDefault (toString index |> (++) "#")
-    getAttrs index = if Dict.member index model.derivations
-      then [ ]
-      else [ class "link", onClick (Derive account.xpub index) ]
+    getAttrs index = (class "link") ::
+      case Dict.get index model.derivations of
+        Just addr -> [ href ("https://blockchain.info/address/" ++ addr), target "_blank" ]
+        Nothing   -> [ onClick (Derive account.xpub index) ]
     makeLabel entry = div [ class "label-entry" ]
       [ div [] [ text entry.label ]
       , div []
