@@ -120,10 +120,15 @@ rootView model =
             SettingsView -> settingsView
         Nothing ->
           askForXpubView model.xpubField
+    shouldShowHeader =
+      case model.view of
+        Loading -> False
+        LoadFailed _ -> False
+        _ -> True
     viewLink view title =
       stdLink (Show view) (model.view == view) title
     headerActions =
-      if model.account /= Nothing && model.view /= Loading
+      if shouldShowHeader
         then
           [ viewLink HomeView "Home"
           , viewLink LabelsView "Labels"
