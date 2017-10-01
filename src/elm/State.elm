@@ -49,16 +49,14 @@ update msg model =
     case log "Msg" msg of
         -- handle results
         StoreSub (Ok account) ->
-            let
-                cmd =
-                    case model.account of
-                        (Just { xpub }) as account ->
-                            Cmd.none
+            ( { model | account = Just account }
+            , case model.account of
+                (Just { xpub }) as account ->
+                    Cmd.none
 
-                        _ ->
-                            getInfo account.xpub
-            in
-            ( { model | account = Just account }, cmd )
+                _ ->
+                    getInfo account.xpub
+            )
 
         StoreSub (Err err) ->
             ( model, Cmd.none )
@@ -75,28 +73,25 @@ update msg model =
 
         XpubResult (Ok info) ->
             let
-                lastLabeled =
-                    model.account
-                        |> Maybe.map
-                            (\a ->
-                                a.labels
-                                    |> List.map (\x -> x.index)
-                                    |> List.foldl Basics.max 0
-                            )
-                        |> Maybe.withDefault 0
+                balance =
+                    info.final_balance
 
-                m =
-                    { model
-                        | balance = info.final_balance
-                        , index = Basics.max info.account_index (lastLabeled + 1)
-                        , view =
-                            if model.view == Loading then
-                                HomeView
-                            else
-                                model.view
-                    }
+                index =
+                    model.account
+                        |> Maybe.map (.labels >> List.map .index)
+                        |> Maybe.andThen List.maximum
+                        |> Maybe.withDefault 0
+                        |> (Basics.max info.account_index << (+) 1)
+
+                view =
+                    if model.view == Loading then
+                        HomeView
+                    else
+                        model.view
             in
-            ( m, Bitcoin.deriveAddress info.address m.index )
+            ( { model | balance = balance, index = index, view = view }
+            , Bitcoin.deriveAddress info.address index
+            )
 
         XpubResult (Err err) ->
             ( { model | view = LoadFailed (toString err) }, Cmd.none )
@@ -119,17 +114,9 @@ update msg model =
             ( model, Bitcoin.deriveAddress xpub index )
 
         SubmitXpub ->
-            let
-                account =
-                    Just
-                        { xpub = model.xpubField
-                        , labels = []
-                        }
-
-                syncAccount =
-                    Store.syncStore account
-            in
-            ( { model | xpubField = "", view = Loading }, syncAccount )
+            ( { model | xpubField = "", view = Loading }
+            , Store.syncStore (Just { xpub = model.xpubField, labels = [] })
+            )
 
         SubmitLabel xpub label ->
             let
@@ -153,23 +140,21 @@ update msg model =
 
         DeleteLabel index ->
             let
-                removeLabel account =
-                    { account | labels = List.filter (\l -> l.index /= index) account.labels }
+                deleteLabel account =
+                    { account | labels = List.filter (.index >> (/=) index) account.labels }
 
                 sync =
-                    Store.syncStore (Maybe.map removeLabel model.account)
+                    Store.syncStore (Maybe.map deleteLabel model.account)
 
                 info =
                     model.account
-                        |> Maybe.map (\a -> getInfo a.xpub)
+                        |> Maybe.map (.xpub >> getInfo)
                         |> Maybe.withDefault Cmd.none
 
                 cmds =
-                    sync
-                        :: (if model.index == index + 1 then
-                                [ info ]
-                            else
-                                []
-                           )
+                    if model.index == index + 1 then
+                        [ sync, info ]
+                    else
+                        [ sync ]
             in
             ( model, Cmd.batch cmds )
