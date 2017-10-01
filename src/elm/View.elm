@@ -184,7 +184,7 @@ rootView model =
                     False
 
                 _ ->
-                    True
+                    model.account /= Nothing
 
         viewLink view title =
             stdLink (Show view) (model.view == view) title
