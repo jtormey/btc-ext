@@ -19,8 +19,7 @@ type Msg
 
 
 type View
-    = Loading
-    | LoadFailed String
+    = ErrorView String
     | HomeView
     | LabelsView
     | SettingsView

@@ -19,19 +19,14 @@ extHeader actions =
         ]
 
 
-balance : Maybe XpubInfo -> Html Msg
-balance info =
+balance : Float -> Html Msg
+balance satoshi =
     let
         balanceText =
-            case info of
-                Just { balance } ->
-                    if balance == 0 then
-                        "No Balance"
-                    else
-                        showBalance balance
-
-                Nothing ->
-                    ""
+            if satoshi == 0 then
+                "No Balance"
+            else
+                showBalance satoshi
     in
     div [ class "maintext" ] [ text balanceText ]
 
@@ -86,14 +81,14 @@ statusView status =
     div [ class "maintext" ] [ text status ]
 
 
-homeView : Model -> AccountInfo -> Html Msg
-homeView model account =
+homeView : Model -> AccountInfo -> XpubInfo -> Html Msg
+homeView model account info =
     let
         address =
             Maybe.withDefault "" <| Dict.get model.index model.derivations
 
         bal =
-            balance model.info
+            balance info.balance
 
         qr =
             qrCode 150 address
@@ -161,31 +156,30 @@ rootView model =
         view =
             case model.account of
                 Just account ->
-                    case model.view of
-                        Loading ->
+                    case model.info of
+                        Just info ->
+                            case model.view of
+                                ErrorView err ->
+                                    statusView err
+
+                                HomeView ->
+                                    homeView model account info
+
+                                LabelsView ->
+                                    labelsView model account
+
+                                SettingsView ->
+                                    settingsView
+
+                        Nothing ->
                             statusView "Loading..."
-
-                        LoadFailed err ->
-                            statusView err
-
-                        HomeView ->
-                            homeView model account
-
-                        LabelsView ->
-                            labelsView model account
-
-                        SettingsView ->
-                            settingsView
 
                 Nothing ->
                     askForXpubView model.xpubField
 
         shouldShowHeader =
             case model.view of
-                Loading ->
-                    False
-
-                LoadFailed _ ->
+                ErrorView _ ->
                     False
 
                 _ ->

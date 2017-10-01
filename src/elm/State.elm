@@ -15,7 +15,7 @@ model : Model
 model =
     { account = Nothing
     , info = Nothing
-    , view = Loading
+    , view = HomeView
     , index = 0
     , derivations = Dict.empty
     , xpubField = ""
@@ -90,19 +90,13 @@ update msg model =
             let
                 index =
                     deriveIndex model.account (Just info)
-
-                view =
-                    if model.view == Loading then
-                        HomeView
-                    else
-                        model.view
             in
-            ( { model | info = Just info, view = view, index = index }
+            ( { model | info = Just info, view = HomeView, index = index }
             , Bitcoin.deriveAddress info.address index
             )
 
         XpubResult (Err err) ->
-            ( { model | view = LoadFailed (toString err) }, Cmd.none )
+            ( { model | view = ErrorView (toString err) }, Cmd.none )
 
         -- handle inputs
         SetField (XpubField xpub) ->
@@ -122,7 +116,7 @@ update msg model =
             ( model, Bitcoin.deriveAddress xpub index )
 
         SubmitXpub ->
-            ( { model | xpubField = "", view = Loading }
+            ( { model | xpubField = "" }
             , Store.syncStore (Just { xpub = model.xpubField, labels = [] })
             )
 
@@ -153,7 +147,15 @@ update msg model =
 
                 accountWithoutLabel =
                     Maybe.map deleteLabel model.account
+
+                nextIndex =
+                    deriveIndex accountWithoutLabel model.info
+
+                deriveNext =
+                    model.account
+                        |> Maybe.map (.xpub >> flip Bitcoin.deriveAddress nextIndex)
+                        |> Maybe.withDefault Cmd.none
             in
-            ( { model | index = deriveIndex accountWithoutLabel model.info }
-            , Store.syncStore accountWithoutLabel
+            ( { model | index = nextIndex }
+            , Cmd.batch [ Store.syncStore accountWithoutLabel, deriveNext ]
             )
