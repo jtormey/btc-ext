@@ -14,10 +14,10 @@ import Types exposing (..)
 model : Model
 model =
     { account = Nothing
+    , info = Nothing
     , view = Loading
     , index = 0
     , derivations = Dict.empty
-    , balance = 0
     , xpubField = ""
     , labelField = ""
     }
@@ -42,6 +42,21 @@ subscriptions model =
 
 
 -- update
+
+
+deriveIndex : Maybe AccountInfo -> Maybe XpubInfo -> Int
+deriveIndex account info =
+    Basics.max
+        (account
+            |> Maybe.map (.labels >> List.map .index)
+            |> Maybe.andThen List.maximum
+            |> Maybe.withDefault 0
+            |> (+) 1
+        )
+        (info
+            |> Maybe.map .index
+            |> Maybe.withDefault 0
+        )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -73,15 +88,8 @@ update msg model =
 
         XpubResult (Ok info) ->
             let
-                balance =
-                    info.final_balance
-
                 index =
-                    model.account
-                        |> Maybe.map (.labels >> List.map .index)
-                        |> Maybe.andThen List.maximum
-                        |> Maybe.withDefault 0
-                        |> (Basics.max info.account_index << (+) 1)
+                    deriveIndex model.account (Just info)
 
                 view =
                     if model.view == Loading then
@@ -89,7 +97,7 @@ update msg model =
                     else
                         model.view
             in
-            ( { model | balance = balance, index = index, view = view }
+            ( { model | info = Just info, view = view, index = index }
             , Bitcoin.deriveAddress info.address index
             )
 
@@ -143,18 +151,9 @@ update msg model =
                 deleteLabel account =
                     { account | labels = List.filter (.index >> (/=) index) account.labels }
 
-                sync =
-                    Store.syncStore (Maybe.map deleteLabel model.account)
-
-                info =
-                    model.account
-                        |> Maybe.map (.xpub >> getInfo)
-                        |> Maybe.withDefault Cmd.none
-
-                cmds =
-                    if model.index == index + 1 then
-                        [ sync, info ]
-                    else
-                        [ sync ]
+                accountWithoutLabel =
+                    Maybe.map deleteLabel model.account
             in
-            ( model, Cmd.batch cmds )
+            ( { model | index = deriveIndex accountWithoutLabel model.info }
+            , Store.syncStore accountWithoutLabel
+            )

@@ -19,16 +19,21 @@ extHeader actions =
         ]
 
 
-balance : Float -> Html Msg
-balance satoshi =
+balance : Maybe XpubInfo -> Html Msg
+balance info =
     let
-        bal =
-            if satoshi == 0 then
-                "No Balance"
-            else
-                showBalance satoshi
+        balanceText =
+            case info of
+                Just { balance } ->
+                    if balance == 0 then
+                        "No Balance"
+                    else
+                        showBalance balance
+
+                Nothing ->
+                    ""
     in
-    div [ class "maintext" ] [ text bal ]
+    div [ class "maintext" ] [ text balanceText ]
 
 
 qrCode : Int -> String -> Html Msg
@@ -88,7 +93,7 @@ homeView model account =
             Maybe.withDefault "" <| Dict.get model.index model.derivations
 
         bal =
-            balance model.balance
+            balance model.info
 
         qr =
             qrCode 150 address

@@ -33,9 +33,9 @@ type Field
 
 type alias Model =
     { account : Maybe AccountInfo
+    , info : Maybe XpubInfo
     , view : View
     , index : Int
-    , balance : Float
     , derivations : Dict Int String
     , xpubField : String
     , labelField : String
@@ -50,8 +50,8 @@ type alias AccountInfo =
 
 type alias XpubInfo =
     { address : String
-    , final_balance : Float
-    , account_index : Int
+    , balance : Float
+    , index : Int
     }
 
 
