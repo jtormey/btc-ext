@@ -110,14 +110,18 @@ update msg model =
             ( { model | view = view }, Cmd.none )
 
         Logout ->
-            ( { model | account = Nothing }, Store.clearStore )
+            ( Tuple.first initialState, Store.clearStore )
 
         Derive xpub index ->
             ( model, Bitcoin.deriveAddress xpub index )
 
         SubmitXpub ->
-            ( { model | xpubField = "" }
-            , Store.syncStore (Just { xpub = model.xpubField, labels = [] })
+            let
+                newAccount =
+                    Just { xpub = model.xpubField, labels = [] }
+            in
+            ( { model | account = newAccount, xpubField = "" }
+            , Cmd.batch [ Store.syncStore newAccount, getInfo model.xpubField ]
             )
 
         SubmitLabel xpub label ->
