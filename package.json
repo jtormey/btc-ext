@@ -1,6 +1,6 @@
 {
   "name": "btc-ext",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Chrome extension for convenient xpub access",
   "main": "src/index.js",
   "scripts": {
