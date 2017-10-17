@@ -1,6 +1,7 @@
 const STORE_KEY = '@btc-ext'
 
 const fallbackStorage = {
+  isFallback: true,
   set (kvs, callback) {
     Object.keys(kvs).forEach(key => {
       localStorage.setItem(key, kvs[key])
@@ -8,7 +9,8 @@ const fallbackStorage = {
     callback()
   },
   get (key, callback) {
-    let data = { [key]: localStorage.getItem(key) }
+    let value = localStorage.getItem(key)
+    let data = value == null ? {} : { [key]: value }
     callback(data)
   },
   remove (key) {
@@ -30,7 +32,16 @@ export const setupPorts = (ports) => {
   ports.fetchStorage.subscribe(() => {
     storage.get(STORE_KEY, (data) => {
       let value = data[STORE_KEY]
-      if (value != null) ports.receiveStorage.send(value)
+      if (value != null) {
+        ports.receiveStorage.send(value)
+      } else if (!storage.isFallback) {
+        fallbackStorage.get(STORE_KEY, (data) => {
+          let value = data[STORE_KEY]
+          if (value != null) {
+            ports.receiveStorage.send(value)
+          }
+        })
+      }
     })
   })
 
