@@ -50,8 +50,8 @@ deriveIndex account info =
         (account
             |> Maybe.map (.labels >> List.map .index)
             |> Maybe.andThen List.maximum
+            |> Maybe.map ((+) 1)
             |> Maybe.withDefault 0
-            |> (+) 1
         )
         (info
             |> Maybe.map .index
