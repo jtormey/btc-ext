@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "BTC EXT",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Chrome extension for convenient xpub access",
   "author": "Justin Tormey <jrtormey@gmail.com>",
   "icons": {
